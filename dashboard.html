@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — StatLearn AI | MoSPI</title>
+  <meta name="description" content="Learner dashboard showing competency levels, skill gaps, iGOT course recommendations, and learning progress.">
+  <link rel="stylesheet" href="css/main.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="js/igot-api.js" defer></script>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Page Header -->
+    <header class="page-header">
+      <div>
+        <div class="page-title" id="welcome-title">Learner Dashboard</div>
+        <div class="page-subtitle" id="welcome-sub">India's Official Statistical System · NSO Survey Operations Division</div>
+      </div>
+      <div style="margin-left:auto; display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+        <span class="badge badge-blue" style="font-size:0.72rem; padding:0.35rem 0.75rem; font-weight:700; border:1px solid rgba(59,130,246,0.3);">FRAC FRAMEWORK</span>
+        <span class="badge badge-saffron" style="font-size:0.72rem; padding:0.35rem 0.75rem; font-weight:700; border:1px solid rgba(255,153,51,0.3);">GEMINI AI</span>
+        <button onclick="App.logout(); window.location.href='index.html';" class="btn btn-ghost btn-sm" style="font-size:0.75rem;">Sign Out ⎋</button>
+      </div>
+    </header>
+
+    <!-- Page Body -->
+    <div class="page-body">
+
+      <!-- iGOT Quick Access Strip -->
+      <div style="background:linear-gradient(135deg,rgba(27,79,114,0.12),rgba(26,143,94,0.07));border:1px solid rgba(26,143,94,0.2);border-radius:var(--radius-xl);padding:0.875rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:0.625rem;flex:1;">
+          <div style="width:32px;height:32px;background:linear-gradient(135deg,#1B4F72,#1A8F5E);border-radius:0.5rem;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">🏛️</div>
+          <div>
+            <div style="font-weight:700;font-size:0.8125rem;">iGOT Karmayogi — Connected</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">1,500+ government courses · Direct enrollment on igot.gov.in</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <a href="igot-integration.html" class="btn btn-sm" style="background:linear-gradient(135deg,#1B4F72,#1A8F5E);color:white;font-size:0.78rem;">iGOT Hub</a>
+          <a href="https://www.igotkarmayogi.gov.in" target="_blank" class="btn btn-outline btn-sm" style="font-size:0.78rem;">Open iGOT ↗</a>
+          <a href="https://www.igotkarmayogi.gov.in" target="_blank" class="btn btn-ghost btn-sm" style="font-size:0.78rem;">My Courses</a>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="stats-grid" id="stats-row" style="margin-bottom:1.5rem;">
+        <div class="stat-card blue" style="background:rgba(15,23,42,0.6); border:1px solid rgba(59,130,246,0.3); border-radius:1rem; padding:1.25rem;">
+          <div class="stat-info">
+            <div class="stat-value" id="stat-competency" style="font-size:2rem; font-weight:800; color:#ffffff;">28%</div>
+            <div class="stat-label" style="font-size:0.8rem; color:var(--text-secondary); margin-top:2px;">Competency Score</div>
+            <div class="stat-change up" style="font-size:0.75rem; color:#3B82F6; margin-top:4px;">↑ SkillVista AI Vector</div>
+          </div>
+        </div>
+        <div class="stat-card green" style="background:rgba(15,23,42,0.6); border:1px solid rgba(16,185,129,0.3); border-radius:1rem; padding:1.25rem;">
+          <div class="stat-info">
+            <div class="stat-value" id="stat-completed" style="font-size:2rem; font-weight:800; color:#ffffff;">2</div>
+            <div class="stat-label" style="font-size:0.8rem; color:var(--text-secondary); margin-top:2px;">Completed Courses</div>
+            <div class="stat-change up" style="font-size:0.75rem; color:#10B981; margin-top:4px;">↑ iGOT Progress</div>
+          </div>
+        </div>
+        <div class="stat-card saffron" style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,153,51,0.3); border-radius:1rem; padding:1.25rem;">
+          <div class="stat-info">
+            <div class="stat-value" id="stat-enrolled" style="font-size:2rem; font-weight:800; color:#ffffff;">4</div>
+            <div class="stat-label" style="font-size:0.8rem; color:var(--text-secondary); margin-top:2px;">Enrolled Pathways</div>
+            <div class="stat-change up" style="font-size:0.75rem; color:#F97316; margin-top:4px;">↑ Active Learning</div>
+          </div>
+        </div>
+        <div class="stat-card purple" style="background:rgba(15,23,42,0.6); border:1px solid rgba(139,92,246,0.3); border-radius:1rem; padding:1.25rem;">
+          <div class="stat-info">
+            <div class="stat-value" id="stat-hours" style="font-size:2rem; font-weight:800; color:#ffffff;">40h</div>
+            <div class="stat-label" style="font-size:0.8rem; color:var(--text-secondary); margin-top:2px;">Learning Hours</div>
+            <div class="stat-change up" style="font-size:0.75rem; color:#8B5CF6; margin-top:4px;">↑ Mission Karmayogi</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Grid: FRAC Vector + Personalised iGOT Pathways (Screenshot 1 & 2) -->
+      <div class="grid-2" style="margin-bottom:var(--space-8); display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem;">
+
+        <!-- Left: FRAC Competency Vector -->
+        <div class="card" style="background:rgba(15,23,42,0.7); border:1px solid rgba(255,255,255,0.08); border-radius:1.25rem; padding:1.5rem; display:flex; flex-direction:column;">
+          <div class="card-title" style="font-size:1.1rem; font-weight:700; margin-bottom:1.25rem; display:flex; align-items:center; gap:0.5rem; color:#ffffff;">
+            <span>🎯</span> FRAC Competency Vector
+          </div>
+          <div style="display:flex; flex-direction:column; gap:1.25rem; flex:1;">
+
+            <!-- Statistical -->
+            <div>
+              <div style="display:flex; justify-content:space-between; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;">
+                <span style="display:flex; align-items:center; gap:0.5rem;">📊 Statistical</span>
+                <span style="font-weight:700; color:#ffffff;">28%</span>
+              </div>
+              <div style="width:100%; height:8px; background:rgba(255,255,255,0.1); border-radius:99px; overflow:hidden;">
+                <div style="width:28%; height:100%; background:linear-gradient(90deg, #6366F1, #8B5CF6); border-radius:99px;"></div>
+              </div>
+            </div>
+
+            <!-- Technical -->
+            <div>
+              <div style="display:flex; justify-content:space-between; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;">
+                <span style="display:flex; align-items:center; gap:0.5rem;">💻 Technical</span>
+                <span style="font-weight:700; color:#ffffff;">0%</span>
+              </div>
+              <div style="width:100%; height:8px; background:rgba(255,255,255,0.1); border-radius:99px; overflow:hidden;">
+                <div style="width:0%; height:100%; background:linear-gradient(90deg, #3B82F6, #60A5FA); border-radius:99px;"></div>
+              </div>
+            </div>
+
+            <!-- Digital Gov -->
+            <div>
+              <div style="display:flex; justify-content:space-between; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;">
+                <span style="display:flex; align-items:center; gap:0.5rem;">🏛️ Digital Gov</span>
+                <span style="font-weight:700; color:#ffffff;">0%</span>
+              </div>
+              <div style="width:100%; height:8px; background:rgba(255,255,255,0.1); border-radius:99px; overflow:hidden;">
+                <div style="width:0%; height:100%; background:linear-gradient(90deg, #10B981, #34D399); border-radius:99px;"></div>
+              </div>
+            </div>
+
+            <!-- Behavioural -->
+            <div>
+              <div style="display:flex; justify-content:space-between; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;">
+                <span style="display:flex; align-items:center; gap:0.5rem;">🤝 Behavioural</span>
+                <span style="font-weight:700; color:#ffffff;">0%</span>
+              </div>
+              <div style="width:100%; height:8px; background:rgba(255,255,255,0.1); border-radius:99px; overflow:hidden;">
+                <div style="width:0%; height:100%; background:linear-gradient(90deg, #F97316, #FBBF24); border-radius:99px;"></div>
+              </div>
+            </div>
+
+          </div>
+          <div style="margin-top:1.5rem; text-align:center;">
+            <a href="assessment.html" class="btn btn-outline" style="width:100%; justify-content:center; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.15); color:#ffffff; font-weight:600; padding:0.65rem 1rem; border-radius:0.75rem;">Update Competency Assessment →</a>
+          </div>
+        </div>
+
+        <!-- Right: Personalised iGOT Pathways -->
+        <div class="card" style="background:rgba(15,23,42,0.7); border:1px solid rgba(255,255,255,0.08); border-radius:1.25rem; padding:1.5rem; display:flex; flex-direction:column;">
+          <div class="card-title" style="font-size:1.1rem; font-weight:700; margin-bottom:1.25rem; display:flex; align-items:center; gap:0.5rem; color:#ffffff;">
+            <span>🎓</span> Personalised iGOT Pathways
+          </div>
+          <div style="display:flex; flex-direction:column; gap:0.875rem; flex:1;">
+
+            <!-- Item 1 -->
+            <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:0.875rem; padding:0.875rem 1rem; display:flex; align-items:center; justify-content:space-between; gap:0.75rem;">
+              <div style="display:flex; align-items:center; gap:0.75rem; min-width:0;">
+                <span style="font-size:1.25rem;">📖</span>
+                <div style="min-width:0;">
+                  <div style="font-size:0.85rem; font-weight:700; color:#ffffff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Fundamentals of Official Statistics & Data Systems</div>
+                  <div style="font-size:0.72rem; color:var(--text-muted);">NSSTA · Beginner</div>
+                </div>
+              </div>
+              <a href="https://www.igotkarmayogi.gov.in" target="_blank" class="btn btn-sm" style="background:linear-gradient(135deg, #6366F1, #8B5CF6); color:white; font-size:0.75rem; padding:0.35rem 0.75rem; border-radius:0.5rem; flex-shrink:0;">iGOT ↗</a>
+            </div>
+
+            <!-- Item 2 -->
+            <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:0.875rem; padding:0.875rem 1rem; display:flex; align-items:center; justify-content:space-between; gap:0.75rem;">
+              <div style="display:flex; align-items:center; gap:0.75rem; min-width:0;">
+                <span style="font-size:1.25rem;">📖</span>
+                <div style="min-width:0;">
+                  <div style="font-size:0.85rem; font-weight:700; color:#ffffff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">National Accounts Statistics & GDP Estimation</div>
+                  <div style="font-size:0.72rem; color:var(--text-muted);">MoSPI / DIID · Intermediate</div>
+                </div>
+              </div>
+              <a href="https://www.igotkarmayogi.gov.in" target="_blank" class="btn btn-sm" style="background:linear-gradient(135deg, #6366F1, #8B5CF6); color:white; font-size:0.75rem; padding:0.35rem 0.75rem; border-radius:0.5rem; flex-shrink:0;">iGOT ↗</a>
+            </div>
+
+            <!-- Item 3 -->
+            <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:0.875rem; padding:0.875rem 1rem; display:flex; align-items:center; justify-content:space-between; gap:0.75rem;">
+              <div style="display:flex; align-items:center; gap:0.75rem; min-width:0;">
+                <span style="font-size:1.25rem;">📖</span>
+                <div style="min-width:0;">
+                  <div style="font-size:0.85rem; font-weight:700; color:#ffffff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Consumer Price Index (CPI) & WPI Methodology</div>
+                  <div style="font-size:0.72rem; color:var(--text-muted);">NSO Price Statistics · Intermediate</div>
+                </div>
+              </div>
+              <a href="https://www.igotkarmayogi.gov.in" target="_blank" class="btn btn-sm" style="background:linear-gradient(135deg, #6366F1, #8B5CF6); color:white; font-size:0.75rem; padding:0.35rem 0.75rem; border-radius:0.5rem; flex-shrink:0;">iGOT ↗</a>
+            </div>
+
+            <!-- Item 4 -->
+            <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:0.875rem; padding:0.875rem 1rem; display:flex; align-items:center; justify-content:space-between; gap:0.75rem;">
+              <div style="display:flex; align-items:center; gap:0.75rem; min-width:0;">
+                <span style="font-size:1.25rem;">📖</span>
+                <div style="min-width:0;">
+                  <div style="font-size:0.85rem; font-weight:700; color:#ffffff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">SDG Indicator Monitoring & National Reporting</div>
+                  <div style="font-size:0.72rem; color:var(--text-muted);">MoSPI SDG Unit · Advanced</div>
+                </div>
+              </div>
+              <a href="https://www.igotkarmayogi.gov.in" target="_blank" class="btn btn-sm" style="background:linear-gradient(135deg, #6366F1, #8B5CF6); color:white; font-size:0.75rem; padding:0.35rem 0.75rem; border-radius:0.5rem; flex-shrink:0;">iGOT ↗</a>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Recommended Courses & Learning Progress -->
+      <div class="grid-2" style="margin-bottom:var(--space-8);">
+
+        <!-- AI Course Recommendations -->
+        <div class="card">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="color:var(--green-400)"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+            AI Course Recommendations
+            <span class="badge badge-blue ml-auto">iGOT</span>
+          </div>
+          <div id="recommendations-list">
+            <!-- Skeleton -->
+            <div id="rec-skeleton">
+              <div class="skeleton" style="height:64px;margin-bottom:0.75rem;"></div>
+              <div class="skeleton" style="height:64px;margin-bottom:0.75rem;"></div>
+              <div class="skeleton" style="height:64px;margin-bottom:0.75rem;"></div>
+            </div>
+          </div>
+          <a href="courses.html" class="btn btn-outline w-full mt-4" style="justify-content:center;">View All iGOT Courses →</a>
+        </div>
+
+        <!-- Progress + Domain Scores -->
+        <div class="card">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="color:var(--purple-400)"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Learning Progress
+          </div>
+          <div style="height:200px;margin-bottom:1rem;">
+            <canvas id="progressChart"></canvas>
+          </div>
+          <div id="domain-scores-list" style="display:flex;flex-direction:column;gap:0.75rem;"></div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="card">
+        <div class="card-title" style="margin-bottom:1rem;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="color:var(--text-secondary)"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Recent Activity
+        </div>
+        <div id="activity-feed" style="display:flex;flex-direction:column;gap:0.75rem;"></div>
+      </div>
+
+    </div><!-- /page-body -->
+  </main>
+</div>
+
+<!-- Chatbot -->
+<div class="chatbot-widget">
+  <div class="chatbot-panel hidden" id="chatbot-panel">
+    <div class="chatbot-header">
+      <div class="chatbot-header-info">
+        <div class="chatbot-avatar">🤖</div>
+        <div>
+          <div class="chatbot-name">StatLearn Assistant</div>
+          <div class="chatbot-status">● Online · Powered by Gemini AI</div>
+        </div>
+      </div>
+      <button class="chatbot-close" id="chatbot-close">×</button>
+    </div>
+    <div class="chatbot-messages" id="chatbot-messages">
+      <div class="chat-msg bot">👋 Hello! I'm your AI learning assistant. How can I help you today?</div>
+    </div>
+    <div class="chatbot-quick-btns" id="quick-btns"></div>
+    <div class="chatbot-input-area">
+      <input type="text" class="chatbot-input" id="chat-input" placeholder="Ask about courses, skills, statistics…">
+      <button class="chatbot-send" id="chat-send">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+  <button class="chatbot-toggle" id="chatbot-toggle" title="AI Assistant">
+    <span id="chat-icon">🤖</span>
+    <div class="chatbot-pulse"></div>
+  </button>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+<script src="js/competency.js"></script>
+<script src="js/igot.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/quiz.js"></script>
+<script>
+(function() {
+  // Auth
+  const user = App.requireAuth();
+  if (!user) return;
+
+  // Render sidebar
+  document.getElementById('sidebar').innerHTML = App.getSidebarHTML('dashboard');
+
+  // Update header
+  document.getElementById('welcome-title').textContent = 'Learner Dashboard';
+  document.getElementById('welcome-sub').textContent = "India's Official Statistical System · NSO Survey Operations Division";
+  if (document.getElementById('radar-role-badge')) document.getElementById('radar-role-badge').textContent = user.designation;
+
+  // Load data
+  const scores = CompetencyEngine.loadScores();
+  const hasScores = Object.keys(scores).length > 0;
+  const enrolled = iGOT.getEnrolled();
+  const completed = iGOT.getCompleted();
+
+  // Stats
+  const overallScore = CompetencyEngine.overallCompetencyScore(scores);
+  document.getElementById('stat-competency').textContent = hasScores ? overallScore + '%' : 'Pending';
+  document.getElementById('stat-completed').textContent = completed.length;
+  document.getElementById('stat-enrolled').textContent = enrolled.length;
+  const estHours = completed.length * 10 + enrolled.length * 3;
+  document.getElementById('stat-hours').textContent = estHours + 'h';
+
+  // Radar
+  if (hasScores) {
+    document.getElementById('radar-placeholder').classList.add('hidden');
+    document.getElementById('radar-domain-scores').classList.remove('hidden');
+    Charts.createRadarChart('radarChart', scores, user.designation);
+
+    // Domain score pills
+    const domainScoresEl = document.getElementById('radar-domain-scores');
+    Object.entries(CompetencyEngine.DOMAINS).forEach(([key, domain]) => {
+      const score = scores[key] || 0;
+      const pct = Math.round(score * 20);
+      const level = CompetencyEngine.getCompetencyLevel(score);
+      domainScoresEl.innerHTML += `
+        <div style="background:var(--glass-bg);border:var(--border-glass);border-radius:var(--radius-md);padding:0.5rem 0.75rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>${domain.emoji}</span>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.7rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${domain.label.replace(' Competencies','').replace(' & Managerial','')}</div>
+            <div style="font-family:var(--font-display);font-weight:700;font-size:0.9rem;">${pct}%</div>
+          </div>
+          <span class="badge badge-${level.color}" style="font-size:0.6rem;">${level.label}</span>
+        </div>`;
+    });
+  }
+
+  // Skill Gaps
+  if (hasScores) {
+    const gaps = CompetencyEngine.computeGaps(scores, user.designation);
+    document.getElementById('gap-legend').classList.remove('hidden');
+    const container = document.getElementById('skill-gaps-container');
+    container.innerHTML = '';
+    Object.entries(gaps).forEach(([key, gap]) => {
+      const domain = CompetencyEngine.DOMAINS[key];
+      const statusColor = gap.status === 'met' ? 'green' : gap.status === 'partial' ? 'saffron' : 'red';
+      container.innerHTML += `
+        <div style="margin-bottom:1rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+            <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.875rem;font-weight:500;">
+              <span>${domain.emoji}</span> ${gap.label.replace(' Competencies','').replace(' & Managerial','')}
+            </div>
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <span style="font-size:0.75rem;color:var(--text-muted);">${gap.current}/5</span>
+              <span class="badge badge-${statusColor}" style="font-size:0.6rem;">${gap.status === 'met' ? '✓ Met' : 'Gap: ' + gap.gap.toFixed(1)}</span>
+            </div>
+          </div>
+          <div style="position:relative;">
+            <div class="progress-track">
+              <div class="progress-fill ${domain.color}" style="width:${gap.pct_current}%"></div>
+            </div>
+            <div style="position:absolute;top:-2px;left:${gap.pct_required}%;width:2px;height:10px;background:var(--saffron-500);border-radius:1px;transform:translateX(-50%);"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:3px;font-size:0.7rem;color:var(--text-muted);">
+            <span>Current: ${Math.round(gap.pct_current)}%</span>
+            <span>Required: ${Math.round(gap.pct_required)}%</span>
+          </div>
+        </div>`;
+    });
+  }
+
+  // Progress chart
+  Charts.createProgressLine('progressChart');
+
+  // Domain scores
+  const domainScoresList = document.getElementById('domain-scores-list');
+  Object.entries(CompetencyEngine.DOMAINS).forEach(([key, domain]) => {
+    const score = scores[key] || 0;
+    const pct = hasScores ? Math.round(score * 20) : 0;
+    domainScoresList.innerHTML += `
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <span style="font-size:0.8rem;color:var(--text-secondary);">${domain.emoji} ${domain.label.replace(' Competencies','').replace(' & Managerial','')}</span>
+          <span style="font-size:0.8rem;font-weight:600;">${pct}%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill ${domain.color}" style="width:${pct}%"></div></div>
+      </div>`;
+  });
+
+  // Recommendations
+  const gaps = hasScores ? CompetencyEngine.computeGaps(scores, user.designation) : {};
+  const recs = iGOT.recommendCourses(scores, gaps, user.designation, 5);
+  const recList = document.getElementById('recommendations-list');
+  recList.innerHTML = '';
+  recs.forEach(course => {
+    const isEnrolled = iGOT.isEnrolled(course.id);
+    recList.innerHTML += `
+      <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;border:var(--border-glass);border-radius:var(--radius-md);margin-bottom:0.5rem;background:var(--glass-bg);transition:all var(--tr-base);" onmouseenter="this.style.background='var(--glass-hover)'" onmouseleave="this.style.background='var(--glass-bg)'">
+        <div style="width:40px;height:40px;border-radius:0.5rem;background:rgba(59,130,246,0.12);display:flex;align-items:center;justify-content:center;font-size:1.125rem;flex-shrink:0;">📖</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:0.85rem;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${course.title}</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);margin-top:1px;">${course.provider} · ${course.duration} · ${course.level}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
+          <span class="badge badge-${course.domain==='statistical'?'blue':course.domain==='technical'?'purple':course.domain==='digital_gov'?'teal':'saffron'}" style="font-size:0.6rem;">${course.domain.replace('_',' ')}</span>
+          ${isEnrolled ? '<span style="font-size:0.65rem;color:var(--green-400);">✓ Enrolled</span>' : ''}
+        </div>
+      </div>`;
+  });
+
+  // Activity Feed
+  const activities = [
+    { icon: '🎯', text: 'Competency assessment completed', time: '2h ago', color: 'blue' },
+    { icon: '📖', text: 'Enrolled in "Python for Data Analysis"', time: '1d ago', color: 'green' },
+    { icon: '✅', text: 'Completed "Ethics, Integrity and Anti-Corruption"', time: '2d ago', color: 'saffron' },
+    { icon: '🏆', text: 'Earned certificate: Digital India Awareness', time: '5d ago', color: 'purple' },
+    { icon: '🤖', text: 'AI Quiz completed: 8/10 score in Statistical Module', time: '1w ago', color: 'teal' },
+  ];
+  const activityFeed = document.getElementById('activity-feed');
+  activities.forEach(a => {
+    activityFeed.innerHTML += `
+      <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;border-radius:var(--radius-md);background:var(--glass-bg);">
+        <div style="width:36px;height:36px;border-radius:50%;background:rgba(${a.color==='blue'?'59,130,246':a.color==='green'?'16,185,129':a.color==='saffron'?'255,153,51':a.color==='purple'?'139,92,246':'20,184,166'},0.15);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">${a.icon}</div>
+        <div style="flex:1;"><div style="font-size:0.875rem;color:var(--text-primary);">${a.text}</div></div>
+        <div style="font-size:0.75rem;color:var(--text-muted);flex-shrink:0;">${a.time}</div>
+      </div>`;
+  });
+
+  // Chatbot
+  const toggle = document.getElementById('chatbot-toggle');
+  const panel = document.getElementById('chatbot-panel');
+  const closeBtn = document.getElementById('chatbot-close');
+  const messagesEl = document.getElementById('chatbot-messages');
+  const input = document.getElementById('chat-input');
+  const sendBtn = document.getElementById('chat-send');
+  const quickBtns = document.getElementById('quick-btns');
+
+  Chatbot.QUICK_REPLIES.forEach(q => {
+    const btn = document.createElement('button');
+    btn.className = 'quick-btn';
+    btn.textContent = q;
+    btn.onclick = () => sendChat(q);
+    quickBtns.appendChild(btn);
+  });
+
+  toggle.addEventListener('click', () => {
+    panel.classList.toggle('hidden');
+    if (!panel.classList.contains('hidden')) input.focus();
+  });
+  closeBtn.addEventListener('click', () => panel.classList.add('hidden'));
+
+  async function sendChat(msg) {
+    const text = msg || input.value.trim();
+    if (!text) return;
+    input.value = '';
+    addMsg(text, 'user');
+    quickBtns.style.display = 'none';
+    const typing = addTyping();
+    try {
+      const reply = await Chatbot.chat(text);
+      typing.remove();
+      addMsg(reply, 'bot');
+    } catch(e) {
+      typing.remove();
+      addMsg(`⚠️ ${e.message}`, 'bot');
+    }
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function addMsg(text, type) {
+    const el = document.createElement('div');
+    el.className = `chat-msg ${type}`;
+    el.textContent = text;
+    messagesEl.appendChild(el);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return el;
+  }
+
+  function addTyping() {
+    const el = document.createElement('div');
+    el.className = 'chat-typing';
+    el.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+    messagesEl.appendChild(el);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return el;
+  }
+
+  sendBtn.addEventListener('click', () => sendChat());
+  input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) sendChat(); });
+
+  // AI Insight (if scores available)
+  if (hasScores && CONFIG.GEMINI_API_KEY !== 'YOUR_GEMINI_API_KEY') {
+    const gapsForAdvice = CompetencyEngine.computeGaps(scores, user.designation);
+    Chatbot.getSkillAdvice(gapsForAdvice).then(advice => {
+      document.getElementById('ai-insight-text').textContent = advice;
+      document.getElementById('ai-insight-banner').classList.remove('hidden');
+    }).catch(() => {});
+  }
+
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Competency Assessment — StatLearn AI</title>
+  <meta name="description" content="AI-powered competency assessment covering Statistical, Technical, Digital Governance, and Behavioural domains for India's statistical workforce.">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    .domain-card { background:var(--glass-bg); border:var(--border-glass); border-radius:var(--radius-xl); padding:1.5rem; text-align:center; cursor:pointer; transition:all var(--tr-spring); }
+    .domain-card:hover { transform:translateY(-6px); }
+    .domain-card.selected { border-width:2px; }
+    .domain-card.blue.selected { border-color:var(--blue-500); background:rgba(59,130,246,0.1); box-shadow:var(--shadow-blue); }
+    .domain-card.purple.selected { border-color:var(--purple-500); background:rgba(139,92,246,0.1); box-shadow:var(--shadow-purple); }
+    .domain-card.teal.selected { border-color:var(--teal-500); background:rgba(20,184,166,0.1); }
+    .domain-card.saffron.selected { border-color:var(--saffron-500); background:rgba(255,153,51,0.1); box-shadow:var(--shadow-saffron); }
+    .domain-icon { font-size:2.5rem; margin-bottom:0.75rem; }
+    .domain-name { font-family:var(--font-display); font-weight:700; margin-bottom:0.25rem; }
+    .domain-count { font-size:0.8rem; color:var(--text-muted); }
+
+    .stepper { display:flex; align-items:center; gap:0; margin-bottom:2rem; }
+    .step { display:flex; align-items:center; gap:0.5rem; flex:1; }
+    .step-dot { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700; flex-shrink:0; border:2px solid rgba(255,255,255,0.15); color:var(--text-muted); transition:all var(--tr-base); }
+    .step.active .step-dot { background:var(--grad-primary); border-color:transparent; color:white; box-shadow:var(--shadow-blue); }
+    .step.done .step-dot { background:var(--grad-green); border-color:transparent; color:white; }
+    .step-label { font-size:0.8rem; font-weight:500; color:var(--text-muted); display:none; }
+    .step.active .step-label, .step.done .step-label { display:block; color:var(--text-primary); }
+    .step-line { flex:1; height:2px; background:rgba(255,255,255,0.08); margin:0 0.25rem; }
+    .step-line.done { background:var(--grad-green); }
+
+    .progress-steps { display:flex; gap:4px; margin-bottom:1.5rem; }
+    .progress-step-dot { height:4px; border-radius:99px; transition:all var(--tr-base); flex:1; background:rgba(255,255,255,0.1); }
+    .progress-step-dot.done { background:var(--blue-500); }
+    .progress-step-dot.current { background:var(--grad-primary); }
+
+    .result-domain-card { background:var(--glass-bg); border:var(--border-glass); border-radius:var(--radius-xl); padding:1.5rem; text-align:center; transition:all var(--tr-base); }
+    .result-score { font-family:var(--font-display); font-size:2.5rem; font-weight:800; }
+    .result-bar { height:8px; border-radius:99px; margin:0.75rem 0; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main-content">
+    <header class="page-header">
+      <div>
+        <div class="page-title">Competency Profiling & Gap Engine</div>
+        <div class="page-subtitle">India's Official Statistical System · NSO Survey Operations Division</div>
+      </div>
+      <div style="margin-left:auto; display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+        <span class="badge badge-blue" style="font-size:0.72rem; padding:0.35rem 0.75rem; font-weight:700; border:1px solid rgba(59,130,246,0.3);">FRAC FRAMEWORK</span>
+        <span class="badge badge-saffron" style="font-size:0.72rem; padding:0.35rem 0.75rem; font-weight:700; border:1px solid rgba(255,153,51,0.3);">GEMINI AI</span>
+        <button onclick="App.logout(); window.location.href='index.html';" class="btn btn-ghost btn-sm" style="font-size:0.75rem;">Sign Out ⎋</button>
+      </div>
+    </header>
+
+    <div class="page-body">
+
+      <!-- Stepper -->
+      <div class="stepper">
+        <div class="step active" id="step-1-dot">
+          <div class="step-dot">1</div>
+          <div class="step-label">Select Domain</div>
+        </div>
+        <div class="step-line" id="line-1"></div>
+        <div class="step" id="step-2-dot">
+          <div class="step-dot">2</div>
+          <div class="step-label">Assessment</div>
+        </div>
+        <div class="step-line" id="line-2"></div>
+        <div class="step" id="step-3-dot">
+          <div class="step-dot">3</div>
+          <div class="step-label">Results</div>
+        </div>
+      </div>
+
+      <!-- Phase 1: Domain Selection -->
+      <div id="phase-select">
+        <div class="grid-4" style="gap:1.25rem;margin-bottom:1.5rem;" id="domain-grid">
+          <!-- Filled by JS -->
+        </div>
+
+        <div style="display:flex;justify-content:center;margin-bottom:2rem;">
+          <button class="btn btn-primary btn-lg" id="start-btn" disabled onclick="startAssessment()" style="padding:0.75rem 2rem; font-size:1rem; font-weight:700;">
+            Start Assessment →
+          </button>
+        </div>
+
+        <!-- Current Skill-Gap Vector Analysis (Screenshot 3) -->
+        <div class="card" style="background:rgba(15,23,42,0.7); border:1px solid rgba(255,255,255,0.08); border-radius:1.25rem; padding:1.5rem;">
+          <div class="card-title" style="font-size:1.1rem; font-weight:700; margin-bottom:1.25rem; display:flex; align-items:center; gap:0.5rem; color:#ffffff;">
+            <span>🔍</span> Current Skill-Gap Vector Analysis
+          </div>
+          <div style="display:flex; flex-direction:column; gap:1rem;" id="skill-gap-vector-list">
+            
+            <!-- Statistical Card -->
+            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:0.875rem; padding:1rem 1.25rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem;">
+              <div>
+                <div style="font-size:1rem; font-weight:700; color:#ffffff; margin-bottom:4px;">Statistical</div>
+                <div style="font-size:0.8rem; color:var(--text-secondary);">Present Level: 1.38/5 (28%)</div>
+              </div>
+              <div style="display:flex; align-items:center; gap:1.25rem;">
+                <span class="badge badge-saffron" style="font-size:0.78rem; padding:0.4rem 0.85rem; font-weight:700; border-radius:0.5rem; background:rgba(249,115,22,0.15); border:1px solid rgba(249,115,22,0.3); color:#F97316;">COMPETENCY GAP: 3.12 / 5</span>
+                <span style="font-size:0.8rem; color:var(--text-muted);">Role Target: 4.5/5 (90%)</span>
+              </div>
+            </div>
+
+            <!-- Technical Card -->
+            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:0.875rem; padding:1rem 1.25rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem;">
+              <div>
+                <div style="font-size:1rem; font-weight:700; color:#ffffff; margin-bottom:4px;">Technical</div>
+                <div style="font-size:0.8rem; color:var(--text-secondary);">Present Level: 0/5 (0%)</div>
+              </div>
+              <div style="display:flex; align-items:center; gap:1.25rem;">
+                <span class="badge badge-saffron" style="font-size:0.78rem; padding:0.4rem 0.85rem; font-weight:700; border-radius:0.5rem; background:rgba(249,115,22,0.15); border:1px solid rgba(249,115,22,0.3); color:#F97316;">COMPETENCY GAP: 3.5 / 5</span>
+                <span style="font-size:0.8rem; color:var(--text-muted);">Role Target: 3.5/5 (70%)</span>
+              </div>
+            </div>
+
+            <!-- Digital Gov Card -->
+            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:0.875rem; padding:1rem 1.25rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem;">
+              <div>
+                <div style="font-size:1rem; font-weight:700; color:#ffffff; margin-bottom:4px;">Digital Gov</div>
+                <div style="font-size:0.8rem; color:var(--text-secondary);">Present Level: 0/5 (0%)</div>
+              </div>
+              <div style="display:flex; align-items:center; gap:1.25rem;">
+                <span class="badge badge-saffron" style="font-size:0.78rem; padding:0.4rem 0.85rem; font-weight:700; border-radius:0.5rem; background:rgba(249,115,22,0.15); border:1px solid rgba(249,115,22,0.3); color:#F97316;">COMPETENCY GAP: 3 / 5</span>
+                <span style="font-size:0.8rem; color:var(--text-muted);">Role Target: 3/5 (60%)</span>
+              </div>
+            </div>
+
+            <!-- Behavioural Card -->
+            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:0.875rem; padding:1rem 1.25rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem;">
+              <div>
+                <div style="font-size:1rem; font-weight:700; color:#ffffff; margin-bottom:4px;">Behavioural</div>
+                <div style="font-size:0.8rem; color:var(--text-secondary);">Present Level: 0/5 (0%)</div>
+              </div>
+              <div style="display:flex; align-items:center; gap:1.25rem;">
+                <span class="badge badge-saffron" style="font-size:0.78rem; padding:0.4rem 0.85rem; font-weight:700; border-radius:0.5rem; background:rgba(249,115,22,0.15); border:1px solid rgba(249,115,22,0.3); color:#F97316;">COMPETENCY GAP: 3 / 5</span>
+                <span style="font-size:0.8rem; color:var(--text-muted);">Role Target: 3/5 (60%)</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Phase 2: Questions -->
+      <div id="phase-questions" class="hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+          <div id="question-domain-label" class="section-tag">Domain</div>
+          <div style="font-size:0.875rem;color:var(--text-muted);">Question <span id="q-current">1</span> of <span id="q-total">8</span></div>
+        </div>
+        <div class="progress-steps" id="progress-steps"></div>
+        <div id="question-card-container"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:1.5rem;">
+          <button class="btn btn-ghost" id="prev-btn" onclick="prevQuestion()">← Previous</button>
+          <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled>Next →</button>
+        </div>
+      </div>
+
+      <!-- Phase 3: Results -->
+      <div id="phase-results" class="hidden">
+        <div class="card" style="text-align:center;padding:2.5rem;margin-bottom:2rem;background:linear-gradient(135deg,rgba(59,130,246,0.1),rgba(139,92,246,0.05));">
+          <div style="font-size:3.5rem;margin-bottom:1rem;">🏆</div>
+          <h2 style="font-family:var(--font-display);margin-bottom:0.5rem;">Assessment Complete!</h2>
+          <p>Your competency profile has been updated with AI-powered gap analysis.</p>
+          <div style="display:flex;gap:1rem;justify-content:center;margin-top:1.5rem;flex-wrap:wrap;">
+            <a href="dashboard.html" class="btn btn-primary">View Dashboard</a>
+            <a href="courses.html" class="btn btn-saffron">Get Course Recommendations</a>
+            <button class="btn btn-outline" onclick="resetAll()">Retake Assessment</button>
+          </div>
+        </div>
+
+        <!-- Score summary -->
+        <div class="grid-4" style="gap:1.25rem;margin-bottom:2rem;" id="result-domain-cards"></div>
+
+        <!-- AI Gap Analysis -->
+        <div class="card" id="gap-analysis-card">
+          <div class="card-title" style="margin-bottom:1rem;"><span>🔍</span> AI Gap Analysis</div>
+          <div id="gap-analysis-list" style="display:flex;flex-direction:column;gap:1rem;"></div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+<script src="js/competency.js"></script>
+<script>
+(function() {
+  const user = App.requireAuth();
+  if (!user) return;
+  document.getElementById('sidebar').innerHTML = App.getSidebarHTML('assessment');
+
+  let selectedDomain = null;
+  let currentQuestionIndex = 0;
+  let answers = [];
+  let allScores = CompetencyEngine.loadScores();
+
+  // Render domain cards matching Screenshot 3
+  const domainGrid = document.getElementById('domain-grid');
+  Object.entries(CompetencyEngine.DOMAINS).forEach(([key, domain]) => {
+    const isCompleted = allScores[key] !== undefined;
+    const scoreVal = isCompleted ? Math.round(allScores[key] * 20) : (key === 'statistical' ? 28 : null);
+    const card = document.createElement('div');
+    card.className = `domain-card ${domain.color}`;
+    card.id = `domain-card-${key}`;
+    card.style.background = 'rgba(15,23,42,0.7)';
+    card.style.border = '1px solid rgba(255,255,255,0.08)';
+    card.style.borderRadius = '1.25rem';
+    card.style.padding = '1.5rem';
+    card.style.textAlign = 'center';
+    card.style.cursor = 'pointer';
+
+    const statusBadge = (scoreVal !== null)
+      ? `<span class="badge badge-green" style="font-size:0.7rem; font-weight:700; padding:0.25rem 0.65rem; border-radius:99px; background:rgba(16,185,129,0.15); color:#10B981; border:1px solid rgba(16,185,129,0.3);">✓ ${scoreVal}% SCORE</span>`
+      : `<span class="badge badge-blue" style="font-size:0.7rem; font-weight:700; padding:0.25rem 0.65rem; border-radius:99px; background:rgba(59,130,246,0.15); color:#3B82F6; border:1px solid rgba(59,130,246,0.3);">PENDING</span>`;
+
+    card.innerHTML = `
+      <div class="domain-icon" style="font-size:2.5rem; margin-bottom:0.75rem;">${domain.emoji}</div>
+      <div class="domain-name" style="font-size:1.05rem; font-weight:700; color:#ffffff; margin-bottom:0.35rem;">${domain.label}</div>
+      <div class="domain-count" style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem;">${CompetencyEngine.QUESTIONS[key].length} Questions</div>
+      <div>${statusBadge}</div>
+    `;
+    card.onclick = () => selectDomain(key);
+    domainGrid.appendChild(card);
+  });
+
+  function selectDomain(key) {
+    selectedDomain = key;
+    document.querySelectorAll('.domain-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById(`domain-card-${key}`).classList.add('selected');
+    document.getElementById('start-btn').disabled = false;
+    document.getElementById('start-btn').textContent = `Start ${CompetencyEngine.DOMAINS[key].label} Assessment →`;
+  }
+
+  // Show existing scores
+  if (Object.keys(allScores).length > 0) {
+    const existingEl = document.getElementById('existing-scores');
+    existingEl.style.display = '';
+    const grid = document.getElementById('existing-scores-grid');
+    Object.entries(allScores).forEach(([key, score]) => {
+      const domain = CompetencyEngine.DOMAINS[key];
+      const level = CompetencyEngine.getCompetencyLevel(score);
+      grid.innerHTML += `
+        <div style="background:var(--glass-bg);border:var(--border-glass);border-radius:var(--radius-md);padding:1rem;text-align:center;">
+          <div style="font-size:1.5rem;margin-bottom:0.25rem;">${domain.emoji}</div>
+          <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">${domain.label.replace(' Competencies','').replace(' & Managerial','')}</div>
+          <div style="font-family:var(--font-display);font-weight:800;font-size:1.25rem;">${Math.round(score*20)}%</div>
+          <span class="badge badge-${level.color}" style="font-size:0.6rem;margin-top:0.25rem;">${level.label}</span>
+        </div>`;
+    });
+  }
+
+  window.startAssessment = function() {
+    if (!selectedDomain) return;
+    answers = new Array(CompetencyEngine.QUESTIONS[selectedDomain].length).fill(-1);
+    currentQuestionIndex = 0;
+    document.getElementById('phase-select').classList.add('hidden');
+    document.getElementById('phase-questions').classList.remove('hidden');
+    setStep(2);
+    updateStepperLine(1, true);
+    renderQuestion();
+  };
+
+  function renderQuestion() {
+    const qs = CompetencyEngine.QUESTIONS[selectedDomain];
+    const q = qs[currentQuestionIndex];
+    const domain = CompetencyEngine.DOMAINS[selectedDomain];
+
+    document.getElementById('question-domain-label').textContent = `${domain.emoji} ${domain.label}`;
+    document.getElementById('q-current').textContent = currentQuestionIndex + 1;
+    document.getElementById('q-total').textContent = qs.length;
+
+    // Progress dots
+    const stepsEl = document.getElementById('progress-steps');
+    stepsEl.innerHTML = '';
+    qs.forEach((_, i) => {
+      const dot = document.createElement('div');
+      dot.className = 'progress-step-dot ' + (i < currentQuestionIndex ? 'done' : i === currentQuestionIndex ? 'current' : '');
+      stepsEl.appendChild(dot);
+    });
+
+    // Question card
+    const container = document.getElementById('question-card-container');
+    container.innerHTML = `
+      <div class="question-card">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;">
+          <span class="badge badge-${domain.color}">${domain.emoji} ${domain.label.replace(' Competencies','').replace(' & Managerial','')}</span>
+          <span style="font-size:0.75rem;color:var(--text-muted);">Skill: ${q.skill.replace(/_/g,' ')}</span>
+        </div>
+        <div class="question-text">${currentQuestionIndex + 1}. ${q.q}</div>
+        <div id="options-container">
+          ${q.opts.map((opt, i) => `
+            <div class="answer-option ${answers[currentQuestionIndex] === i ? 'selected' : ''}" id="opt-${i}" onclick="selectAnswer(${i})">
+              <div class="answer-radio"></div>
+              <span>${['A','B','C','D'][i]}. ${opt}</span>
+            </div>`).join('')}
+        </div>
+      </div>`;
+
+    document.getElementById('prev-btn').disabled = currentQuestionIndex === 0;
+    document.getElementById('next-btn').disabled = answers[currentQuestionIndex] === -1;
+    document.getElementById('next-btn').textContent = currentQuestionIndex === qs.length - 1 ? 'Submit Assessment ✓' : 'Next →';
+  }
+
+  window.selectAnswer = function(optIdx) {
+    answers[currentQuestionIndex] = optIdx;
+    document.querySelectorAll('.answer-option').forEach((el, i) => {
+      el.classList.toggle('selected', i === optIdx);
+    });
+    document.getElementById('next-btn').disabled = false;
+  };
+
+  window.prevQuestion = function() {
+    if (currentQuestionIndex > 0) { currentQuestionIndex--; renderQuestion(); }
+  };
+
+  window.nextQuestion = function() {
+    const qs = CompetencyEngine.QUESTIONS[selectedDomain];
+    if (currentQuestionIndex < qs.length - 1) {
+      currentQuestionIndex++;
+      renderQuestion();
+    } else {
+      submitAssessment();
+    }
+  };
+
+  function submitAssessment() {
+    const score = CompetencyEngine.scoreAssessment(selectedDomain, answers);
+    allScores[selectedDomain] = score;
+    CompetencyEngine.saveScores(allScores);
+    App.toast(`Assessment complete! Score: ${Math.round(score * 20)}%`, 'success');
+    showResults();
+  }
+
+  function showResults() {
+    setStep(3);
+    updateStepperLine(2, true);
+    document.getElementById('phase-questions').classList.add('hidden');
+    document.getElementById('phase-results').classList.remove('hidden');
+
+    // Domain result cards
+    const cardsEl = document.getElementById('result-domain-cards');
+    cardsEl.innerHTML = '';
+    Object.entries(CompetencyEngine.DOMAINS).forEach(([key, domain]) => {
+      const score = allScores[key];
+      if (score === undefined) {
+        cardsEl.innerHTML += `
+          <div class="result-domain-card" style="opacity:0.5;">
+            <div style="font-size:2rem;">${domain.emoji}</div>
+            <div style="font-size:0.8rem;color:var(--text-muted);margin:0.5rem 0;">${domain.label.replace(' Competencies','').replace(' & Managerial','')}</div>
+            <div style="font-family:var(--font-display);font-weight:700;color:var(--text-muted);">Not Assessed</div>
+          </div>`;
+        return;
+      }
+      const pct = Math.round(score * 20);
+      const level = CompetencyEngine.getCompetencyLevel(score);
+      const colorMap = { blue: '#3b82f6', purple: '#8b5cf6', teal: '#14b8a6', saffron: '#FF9933', green: '#10b981', red: '#ef4444' };
+      const c = colorMap[domain.color] || '#3b82f6';
+      cardsEl.innerHTML += `
+        <div class="result-domain-card" style="border-top:3px solid ${c};">
+          <div style="font-size:2rem;margin-bottom:0.5rem;">${domain.emoji}</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.5rem;">${domain.label.replace(' Competencies','').replace(' & Managerial','')}</div>
+          <div class="result-score" style="color:${c};">${pct}%</div>
+          <div class="result-bar" style="background:rgba(255,255,255,0.08);"><div style="height:100%;border-radius:99px;background:${c};width:${pct}%;transition:width 1s ease;"></div></div>
+          <span class="badge badge-${level.color}">${level.label}</span>
+        </div>`;
+    });
+
+    // Gap Analysis
+    const gaps = CompetencyEngine.computeGaps(allScores, user.designation);
+    const gapList = document.getElementById('gap-analysis-list');
+    gapList.innerHTML = '';
+    Object.entries(gaps).forEach(([key, gap]) => {
+      const domain = CompetencyEngine.DOMAINS[key];
+      const statusIcon = gap.status === 'met' ? '✅' : gap.status === 'partial' ? '⚠️' : '❌';
+      gapList.innerHTML += `
+        <div style="padding:1rem;border:var(--border-glass);border-radius:var(--radius-md);background:var(--glass-bg);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <span>${domain.emoji}</span>
+              <span style="font-weight:600;">${gap.label.replace(' Competencies','').replace(' & Managerial','')}</span>
+            </div>
+            <span>${statusIcon} ${gap.status === 'met' ? 'Competency Met' : `Gap: ${gap.gap.toFixed(1)}/5`}</span>
+          </div>
+          <div style="display:flex;gap:1rem;font-size:0.8rem;color:var(--text-muted);">
+            <span>Current: <b style="color:var(--blue-400);">${gap.current}/5</b></span>
+            <span>Required: <b style="color:var(--saffron-400);">${gap.required}/5</b></span>
+            ${gap.gap > 0 ? `<span style="color:var(--red-400);">Action needed</span>` : `<span style="color:var(--green-400);">✓ Proficient</span>`}
+          </div>
+          ${gap.gap > 0 ? `<div style="margin-top:0.75rem;padding:0.5rem 0.75rem;background:rgba(255,153,51,0.08);border:1px solid rgba(255,153,51,0.2);border-radius:0.375rem;font-size:0.8rem;color:var(--saffron-300);">💡 Recommended: Enroll in relevant iGOT courses to bridge this gap</div>` : ''}
+        </div>`;
+    });
+  }
+
+  function setStep(n) {
+    [1,2,3].forEach(i => {
+      const el = document.getElementById(`step-${i}-dot`);
+      el.classList.remove('active','done');
+      if (i < n) el.classList.add('done');
+      else if (i === n) el.classList.add('active');
+    });
+  }
+  function updateStepperLine(n, done) {
+    const line = document.getElementById(`line-${n}`);
+    if (line) { if (done) line.classList.add('done'); else line.classList.remove('done'); }
+  }
+
+  window.resetAll = function() {
+    allScores = {};
+    CompetencyEngine.saveScores({});
+    selectedDomain = null;
+    document.getElementById('phase-questions').classList.add('hidden');
+    document.getElementById('phase-results').classList.add('hidden');
+    document.getElementById('phase-select').classList.remove('hidden');
+    document.querySelectorAll('.domain-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('start-btn').disabled = true;
+    document.getElementById('start-btn').textContent = 'Start Assessment →';
+    document.getElementById('existing-scores').style.display = 'none';
+    setStep(1);
+    App.toast('Assessment reset. Start fresh!', 'info');
+    location.reload();
+  };
+
+})();
+</script>
+</body>
+</html>

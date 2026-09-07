@@ -1,0 +1,22 @@
+{
+  "name": "skillvista-sih101",
+  "version": "1.0.0",
+  "description": "SkillVista — AI-Enabled Skill Intelligence & Learning Platform with MongoDB Backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "mongoose": "^8.2.1",
+    "mongodb": "^6.5.0"
+  },
+  "keywords": [
+    "skillvista",
+    "sih2026",
+    "mospi",
+    "mongodb"
+  ],
+  "author": "MoSPI / NSSTA Platform Team",
+  "license": "MIT"
+}

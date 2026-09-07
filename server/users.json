@@ -1,0 +1,46 @@
+{
+  "kavi@tn.gov.in": {
+    "name": "kavi",
+    "empId": "00312",
+    "ministry": "MoE — Ministry of Education",
+    "org": "CSO — Central Statistics Office",
+    "designation": "Section Officer",
+    "centerState": "state",
+    "email": "kavi@tn.gov.in",
+    "password": "kavi008@",
+    "createdAt": 1788710161726
+  },
+  "ram@tn.gov.in": {
+    "name": "ram",
+    "empId": "45698",
+    "ministry": "MHA — Ministry of Home Affairs",
+    "org": "NSSO — Field Operations Division",
+    "designation": "Section Officer",
+    "centerState": "state",
+    "email": "ram@tn.gov.in",
+    "password": "Ram123@@",
+    "createdAt": 1788710334283
+  },
+  "rithi@tn.gov.in": {
+    "name": "rithik",
+    "empId": "45632",
+    "ministry": "MHA — Ministry of Home Affairs",
+    "org": "CSO — Central Statistics Office",
+    "designation": "Data Analyst",
+    "centerState": "center",
+    "email": "rithi@tn.gov.in",
+    "password": "rithik007",
+    "createdAt": 1788714356108
+  },
+  "santhiya@tn.gov.in": {
+    "name": "santhiya",
+    "empId": "45632",
+    "ministry": "DoPT — Department of Personnel & Training",
+    "org": "CSO — Central Statistics Office",
+    "designation": "Data Analyst",
+    "centerState": "center",
+    "email": "santhiya@tn.gov.in",
+    "password": "San123@@",
+    "createdAt": 1788751561650
+  }
+}

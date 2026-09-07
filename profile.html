@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile & iGOT Certificates — SkillVista | MoSPI</title>
+  <meta name="description" content="View and edit official profile details, service information, and uploaded iGOT Karmayogi certificates.">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    .prof-hero-card {
+      background: linear-gradient(135deg, #0A2540 0%, #0F172A 100%);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius-2xl);
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-xl);
+      color: #ffffff !important;
+    }
+    .prof-hero-card *,
+    .prof-hero-card h1,
+    .prof-hero-card h2,
+    .prof-hero-card h3,
+    .prof-hero-card h4,
+    .prof-hero-card p,
+    .prof-hero-card span,
+    .prof-hero-card div {
+      color: #ffffff !important;
+    }
+    .prof-avatar-wrap {
+      position: relative;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .prof-avatar-big {
+      width: 84px;
+      height: 84px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2563EB, #7C3AED);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: #ffffff !important;
+      border: 3px solid rgba(255,255,255,0.3);
+      box-shadow: var(--shadow-blue);
+      overflow: hidden;
+    }
+    .prof-avatar-big img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .prof-avatar-cam {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #F97316;
+      border: 2px solid #0f1629;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      color: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+    .prof-card-personal {
+      background: linear-gradient(145deg, rgba(11, 20, 42, 0.96), rgba(20, 33, 62, 0.98)) !important;
+      border: 1px solid rgba(59, 130, 246, 0.3) !important;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    }
+    .prof-form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      margin-bottom: 1.1rem;
+    }
+    .prof-form-group label {
+      font-size: 0.8rem !important;
+      font-weight: 700 !important;
+      color: #FFB347 !important; /* Warm Saffron Gold */
+      text-transform: uppercase !important;
+      letter-spacing: 0.07em !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 0.35rem !important;
+    }
+    .prof-input, input.prof-input, select.prof-input, textarea.prof-input {
+      background: rgba(7, 13, 26, 0.92) !important;
+      border: 1.5px solid rgba(99, 102, 241, 0.35) !important;
+      border-radius: var(--radius-md) !important;
+      padding: 0.72rem 1rem !important;
+      color: #FFFFFF !important;
+      font-size: 0.9375rem !important;
+      font-weight: 600 !important;
+      outline: none !important;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6) !important;
+      transition: all var(--tr-base) !important;
+    }
+    .prof-input:focus, input.prof-input:focus, select.prof-input:focus {
+      border-color: #3B82F6 !important;
+      background: #090e1a !important;
+      box-shadow: 0 0 0 3.5px rgba(59, 130, 246, 0.35), inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+    }
+    .prof-input option, select.prof-input option {
+      background-color: #0c1427 !important;
+      color: #FFFFFF !important;
+      padding: 10px !important;
+      font-weight: 600 !important;
+    }
+    .prof-input::placeholder {
+      color: #94A3B8 !important;
+      opacity: 0.75 !important;
+    }
+    .cert-card {
+      background: var(--glass-bg);
+      border: var(--border-glass);
+      border-radius: var(--radius-xl);
+      padding: 1.125rem;
+      margin-bottom: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all var(--tr-base);
+    }
+    .cert-card:hover {
+      background: var(--glass-hover);
+      border-color: rgba(255,255,255,0.15);
+      transform: translateY(-2px);
+    }
+    .cert-thumb {
+      width: 72px;
+      height: 52px;
+      border-radius: var(--radius-md);
+      background: rgba(59,130,246,0.12);
+      border: 1px solid rgba(59,130,246,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .cert-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .cert-upload-zone {
+      border: 2px dashed rgba(59,130,246,0.35);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      background: rgba(59,130,246,0.04);
+      transition: all var(--tr-base);
+      margin-bottom: 1rem;
+    }
+    .cert-upload-zone:hover {
+      border-color: var(--blue-500);
+      background: rgba(59,130,246,0.08);
+    }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main-content">
+
+    <!-- Header -->
+    <header class="page-header">
+      <div>
+        <div class="page-title">👤 My Profile & iGOT Certificates</div>
+        <div class="page-subtitle">India's Official Statistical System · NSO Survey Operations Division</div>
+      </div>
+      <div style="margin-left:auto; display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+        <span class="badge badge-blue" style="font-size:0.72rem; padding:0.35rem 0.75rem; font-weight:700; border:1px solid rgba(59,130,246,0.3);">FRAC FRAMEWORK</span>
+        <span class="badge badge-saffron" style="font-size:0.72rem; padding:0.35rem 0.75rem; font-weight:700; border:1px solid rgba(255,153,51,0.3);">GEMINI AI</span>
+        <button onclick="App.logout(); window.location.href='index.html';" class="btn btn-ghost btn-sm" style="font-size:0.75rem;">Sign Out ⎋</button>
+      </div>
+    </header>
+
+    <!-- Page Body -->
+    <div class="page-body">
+
+      <!-- Profile Hero Banner -->
+      <div class="prof-hero-card">
+        <div class="prof-avatar-wrap" onclick="document.getElementById('profile-photo-input').click()" title="Click to upload profile photo">
+          <div class="prof-avatar-big" id="prof-avatar-display">PS</div>
+          <div class="prof-avatar-cam">📷</div>
+          <input type="file" id="profile-photo-input" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this)">
+        </div>
+        <div style="flex:1;min-width:200px;">
+          <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.25rem;">
+            <h2 style="font-size:1.5rem;font-weight:800;color:white;" id="hero-name">Priya Sharma</h2>
+            <span class="badge badge-green">✓ iGOT Verified</span>
+          </div>
+          <div style="font-size:0.875rem;color:var(--text-secondary);" id="hero-designation">Statistical Officer</div>
+          <div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;" id="hero-dept">NSO Survey Operations Division · MoSPI</div>
+        </div>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" onclick="saveProfileChanges()">💾 Save Profile Updates</button>
+        </div>
+      </div>
+
+      <!-- Main 2-Column Grid -->
+      <div class="grid-2" style="gap:1.5rem;align-items:start;">
+
+        <!-- Left Column: Personal & Service Details Form -->
+        <div class="card prof-card-personal">
+          <div class="card-title" style="margin-bottom:1.25rem;">
+            <span style="font-size:1.25rem;">📋</span> <span style="background:linear-gradient(135deg,#FFFFFF 0%,#93C5FD 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:800;">Personal & Service Details</span>
+          </div>
+
+          <form id="profile-form" onsubmit="event.preventDefault(); saveProfileChanges();">
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;">
+              
+              <div class="prof-form-group">
+                <label>Full Name</label>
+                <input type="text" class="prof-input" id="pf-name" value="Priya Sharma" required>
+              </div>
+
+              <div class="prof-form-group">
+                <label>Employee ID (MoSPI)</label>
+                <input type="text" class="prof-input" id="pf-empid" value="MOSPI/2026/00101">
+              </div>
+
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;">
+              
+              <div class="prof-form-group">
+                <label>Official Designation</label>
+                <select class="prof-input" id="pf-designation" style="background:#0f1629;">
+                  <option value="Statistical Officer" selected>Statistical Officer</option>
+                  <option value="Senior Statistical Officer">Senior Statistical Officer</option>
+                  <option value="Assistant Director">Assistant Director</option>
+                  <option value="Deputy Director">Deputy Director</option>
+                  <option value="Director">Director</option>
+                  <option value="MoSPI Administrator">MoSPI Administrator</option>
+                </select>
+              </div>
+
+              <div class="prof-form-group">
+                <label>Department / Division</label>
+                <input type="text" class="prof-input" id="pf-department" value="NSO Survey Operations Division">
+              </div>
+
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;">
+              
+              <div class="prof-form-group">
+                <label>Work Station / Location</label>
+                <input type="text" class="prof-input" id="pf-location" value="New Delhi Central HQ">
+              </div>
+
+              <div class="prof-form-group">
+                <label>Mobile Number</label>
+                <input type="tel" class="prof-input" id="pf-phone" value="+91 98765 43210">
+              </div>
+
+            </div>
+
+            <div class="prof-form-group">
+              <label>Official Email Address (Read-only)</label>
+              <input type="email" class="prof-input" id="pf-email" value="priya.sharma@mospi.gov.in" readonly style="opacity:0.7;cursor:not-allowed;">
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;">
+              
+              <div class="prof-form-group">
+                <label>Service Experience</label>
+                <input type="text" class="prof-input" id="pf-experience" value="6 Years in NSSO Survey Ops">
+              </div>
+
+              <div class="prof-form-group">
+                <label>Education & Specialization</label>
+                <input type="text" class="prof-input" id="pf-education" value="M.Sc. Statistics · Data Analytics">
+              </div>
+
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:0.75rem;margin-top:1rem;">
+              <button type="button" class="btn btn-outline btn-sm" onclick="location.reload()">Reset</button>
+              <button type="submit" class="btn btn-saffron btn-sm">💾 Save Changes</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Right Column: iGOT Karmayogi Certificates -->
+        <div class="card">
+          <div class="card-title" style="margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center;">
+            <span>🏅 Completed iGOT Certificates</span>
+            <span class="badge badge-green" id="cert-count-badge">3 Certificates</span>
+          </div>
+
+          <!-- Add Certificate Collapsible Box -->
+          <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1.5rem;">
+            <div style="font-weight:700;font-size:0.9rem;color:var(--blue-300);margin-bottom:0.75rem;display:flex;align-items:center;gap:0.5rem;">
+              <span>➕</span> Add Completed Course Certificate
+            </div>
+            
+            <form id="add-cert-form" onsubmit="event.preventDefault(); addNewCertificate();">
+              <div class="prof-form-group">
+                <label>Course Title</label>
+                <input type="text" class="prof-input" id="cert-title-input" placeholder="e.g. CPI & WPI Compilation Methodology" required>
+              </div>
+
+              <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.75rem;">
+                <div class="prof-form-group">
+                  <label>Issuing Institution</label>
+                  <select class="prof-input" id="cert-provider-input" style="background:#0f1629;">
+                    <option value="iGOT Karmayogi">iGOT Karmayogi</option>
+                    <option value="NSSTA">NSSTA</option>
+                    <option value="LBSNAA">LBSNAA</option>
+                    <option value="NIC">NIC</option>
+                    <option value="MoSPI / DIID">MoSPI / DIID</option>
+                    <option value="Other Govt Portal">Other Govt Portal</option>
+                  </select>
+                </div>
+
+                <div class="prof-form-group">
+                  <label>Completion Date</label>
+                  <input type="date" class="prof-input" id="cert-date-input" required>
+                </div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.75rem;">
+                <div class="prof-form-group">
+                  <label>Score (%) / Grade</label>
+                  <input type="text" class="prof-input" id="cert-score-input" placeholder="e.g. 94">
+                </div>
+
+                <div class="prof-form-group">
+                  <label>iGOT Verification Link / URL</label>
+                  <input type="url" class="prof-input" id="cert-url-input" placeholder="https://igot.gov.in/app/profile/...">
+                </div>
+              </div>
+
+              <!-- Certificate Scan Photo Upload -->
+              <div class="cert-upload-zone" onclick="document.getElementById('cert-photo-input').click()">
+                <div style="font-size:1.5rem;margin-bottom:0.25rem;">📜</div>
+                <div style="font-size:0.8rem;font-weight:600;color:var(--blue-300);" id="cert-file-label">Click to Upload Certificate Scan / Image (Optional)</div>
+                <div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;">PNG, JPG, PDF preview supported</div>
+                <input type="file" id="cert-photo-input" accept="image/*" style="display:none;" onchange="handleCertPhotoSelect(this)">
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-sm" style="width:100%;">+ Upload & Add Certificate</button>
+            </form>
+          </div>
+
+          <!-- Certificate List Container -->
+          <div id="certificates-list">
+            <!-- Filled dynamically by JS -->
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+<script>
+(function() {
+  const user = App.requireAuth();
+  if (!user) return;
+
+  // Render sidebar
+  document.getElementById('sidebar').innerHTML = App.getSidebarHTML('profile');
+
+  // Populate profile fields from current session
+  document.getElementById('pf-name').value = user.name || 'Priya Sharma';
+  document.getElementById('pf-empid').value = user.empId || 'MOSPI/2026/00101';
+  document.getElementById('pf-designation').value = user.designation || 'Statistical Officer';
+  document.getElementById('pf-department').value = user.department || 'NSO Survey Operations Division';
+  document.getElementById('pf-location').value = user.profile?.location || 'New Delhi Central HQ';
+  document.getElementById('pf-phone').value = user.profile?.phone || '+91 98765 43210';
+  document.getElementById('pf-email').value = user.email || 'priya.sharma@mospi.gov.in';
+  document.getElementById('pf-experience').value = user.profile?.experience || '6 Years in NSSO Survey Ops';
+  document.getElementById('pf-education').value = user.profile?.education || 'M.Sc. Statistics · Data Analytics';
+
+  // Update Hero Banner
+  updateHeroDisplay(user);
+
+  // Load Certificates
+  renderCertificates();
+
+  // Pre-fill today's date in cert form
+  document.getElementById('cert-date-input').value = new Date().toISOString().split('T')[0];
+
+})();
+
+let selectedCertPhotoBase64 = '';
+
+function updateHeroDisplay(u) {
+  document.getElementById('hero-name').textContent = u.name || 'Priya Sharma';
+  document.getElementById('hero-designation').textContent = u.designation || 'Statistical Officer';
+  document.getElementById('hero-dept').textContent = `${u.department || 'NSO Survey Operations Division'} · MoSPI`;
+  
+  const avatarEl = document.getElementById('prof-avatar-display');
+  if (u.photoUrl) {
+    avatarEl.innerHTML = `<img src="${u.photoUrl}" alt="Avatar">`;
+  } else {
+    avatarEl.textContent = u.avatar || (u.name ? u.name[0].toUpperCase() : 'PS');
+  }
+}
+
+function handlePhotoUpload(input) {
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const photoUrl = e.target.result;
+      const updatedUser = App.updateProfile({ photoUrl: photoUrl });
+      updateHeroDisplay(updatedUser);
+      document.getElementById('sidebar').innerHTML = App.getSidebarHTML('profile');
+      App.toast('✅ Profile photo updated successfully!', 'success');
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function handleCertPhotoSelect(input) {
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      selectedCertPhotoBase64 = e.target.result;
+      document.getElementById('cert-file-label').textContent = `✓ Selected: ${file.name}`;
+      document.getElementById('cert-file-label').style.color = 'var(--green-400)';
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function saveProfileChanges() {
+  const updated = {
+    name: document.getElementById('pf-name').value.trim(),
+    empId: document.getElementById('pf-empid').value.trim(),
+    designation: document.getElementById('pf-designation').value,
+    department: document.getElementById('pf-department').value.trim(),
+    location: document.getElementById('pf-location').value.trim(),
+    phone: document.getElementById('pf-phone').value.trim(),
+    experience: document.getElementById('pf-experience').value.trim(),
+    education: document.getElementById('pf-education').value.trim(),
+  };
+
+  if (!updated.name) {
+    App.toast('Please enter your full name', 'warning');
+    return;
+  }
+
+  const u = App.updateProfile(updated);
+  updateHeroDisplay(u);
+  document.getElementById('sidebar').innerHTML = App.getSidebarHTML('profile');
+  App.toast('✅ Profile updated and saved to session!', 'success');
+}
+
+function renderCertificates() {
+  const certs = App.getCertificates();
+  const listEl = document.getElementById('certificates-list');
+  document.getElementById('cert-count-badge').textContent = `${certs.length} Certificate${certs.length !== 1 ? 's' : ''}`;
+
+  if (certs.length === 0) {
+    listEl.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--text-muted);">No certificates uploaded yet. Use the form above to add your iGOT course certificates.</div>`;
+    return;
+  }
+
+  listEl.innerHTML = certs.map(c => `
+    <div class="cert-card">
+      <div class="cert-thumb">
+        ${c.photoUrl ? `<img src="${c.photoUrl}" alt="Certificate">` : '🏅'}
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;font-size:0.875rem;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.title}</div>
+        <div style="font-size:0.75rem;color:var(--text-muted);margin:2px 0;">${c.provider} · Issued on ${App.formatDate(c.date)}</div>
+        <div style="display:flex;gap:0.5rem;align-items:center;margin-top:4px;">
+          <span class="badge badge-green" style="font-size:0.6rem;">Score: ${c.score}</span>
+          <span class="badge badge-blue" style="font-size:0.6rem;">✓ Verified</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.5rem;flex-shrink:0;">
+        <a href="${c.certUrl || 'https://igot.gov.in/app/profile/myCourses'}" target="_blank" class="btn btn-outline btn-sm" style="font-size:0.72rem;padding:0.3rem 0.6rem;">
+          View ↗
+        </a>
+        <button onclick="deleteCert('${c.id}')" style="background:none;border:none;color:var(--red-400);cursor:pointer;font-size:0.75rem;opacity:0.7;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.7'" title="Remove Certificate">
+          🗑️ Remove
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addNewCertificate() {
+  const title = document.getElementById('cert-title-input').value.trim();
+  const provider = document.getElementById('cert-provider-input').value;
+  const date = document.getElementById('cert-date-input').value;
+  const score = document.getElementById('cert-score-input').value.trim();
+  const certUrl = document.getElementById('cert-url-input').value.trim();
+
+  if (!title) {
+    App.toast('Please enter the course title', 'warning');
+    return;
+  }
+
+  App.addCertificate({
+    title,
+    provider,
+    date,
+    score,
+    certUrl,
+    photoUrl: selectedCertPhotoBase64
+  });
+
+  // Reset form
+  document.getElementById('add-cert-form').reset();
+  selectedCertPhotoBase64 = '';
+  document.getElementById('cert-file-label').textContent = 'Click to Upload Certificate Scan / Image (Optional)';
+  document.getElementById('cert-file-label').style.color = 'var(--blue-300)';
+  document.getElementById('cert-date-input').value = new Date().toISOString().split('T')[0];
+
+  renderCertificates();
+  App.toast('✅ iGOT Certificate added successfully!', 'success');
+}
+
+function deleteCert(certId) {
+  if (confirm('Are you sure you want to remove this certificate?')) {
+    App.removeCertificate(certId);
+    renderCertificates();
+    App.toast('Certificate removed', 'info');
+  }
+}
+</script>
+</body>
+</html>

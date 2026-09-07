@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Analytics — StatLearn AI | MoSPI</title>
+  <meta name="description" content="Organization-wide competency analytics, training effectiveness, workforce skill distribution, and predictive insights.">
+  <link rel="stylesheet" href="css/main.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    .data-table{width:100%;border-collapse:collapse;font-size:.875rem;}
+    .data-table th{font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;padding:.75rem 1rem;border-bottom:var(--border-glass);text-align:left;white-space:nowrap;}
+    .data-table td{padding:.75rem 1rem;border-bottom:var(--border-subtle);color:var(--text-secondary);vertical-align:middle;}
+    .data-table tr:hover td{background:var(--glass-bg);}
+    .data-table tr:last-child td{border-bottom:none;}
+    .chart-wrap{position:relative;width:100%;}
+    .chart-wrap canvas{display:block;width:100%!important;}
+  </style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Page Header -->
+    <header class="page-header">
+      <div>
+        <div class="page-title">Admin Analytics Dashboard</div>
+        <div class="page-subtitle">Organisation-wide workforce competency and training insights</div>
+      </div>
+      <div class="flex gap-3" style="flex-wrap:wrap;">
+        <select class="form-select" id="period-filter" style="width:auto;padding:.5rem 1rem;font-size:.875rem;">
+          <option>FY 2026-27</option>
+          <option>FY 2025-26</option>
+          <option>FY 2024-25</option>
+        </select>
+        <button class="btn btn-outline btn-sm" onclick="App.toast('Generating PDF report…','info')">⬇ Export</button>
+        <button class="btn btn-saffron btn-sm" onclick="App.toast('Report scheduled for email delivery','success')">📧 Email Report</button>
+      </div>
+    </header>
+
+    <!-- Page Body -->
+    <div class="page-body">
+
+      <!-- KPI Stats -->
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-icon blue">👥</div>
+          <div class="stat-info">
+            <div class="stat-value" id="kpi-users">—</div>
+            <div class="stat-label">Total Officials</div>
+            <div class="stat-change up">↑ +48 this quarter</div>
+          </div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon green">📈</div>
+          <div class="stat-info">
+            <div class="stat-value" id="kpi-avg-score">—</div>
+            <div class="stat-label">Avg Competency Score</div>
+            <div class="stat-change up">↑ +8% from last year</div>
+          </div>
+        </div>
+        <div class="stat-card saffron">
+          <div class="stat-icon saffron">📚</div>
+          <div class="stat-info">
+            <div class="stat-value" id="kpi-courses">—</div>
+            <div class="stat-label">Course Completions</div>
+            <div class="stat-change up">↑ +31% this quarter</div>
+          </div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-icon purple">🎯</div>
+          <div class="stat-info">
+            <div class="stat-value" id="kpi-igot">—</div>
+            <div class="stat-label">iGOT Utilisation</div>
+            <div class="stat-change up">↑ Up from 42% last year</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 1: Org Heatmap + Training Effectiveness -->
+      <div class="grid-2" style="margin-bottom:1.5rem;">
+
+        <div class="card">
+          <div class="card-title">
+            🌡️ Department Competency Overview
+          </div>
+          <div class="chart-wrap" style="height:280px;">
+            <canvas id="orgHeatmapChart" style="height:280px;"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📊 Training Effectiveness (6 Months)</div>
+          <div class="chart-wrap" style="height:280px;">
+            <canvas id="effectivenessChart" style="height:280px;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: Skill Distribution + Predictive -->
+      <div class="grid-2" style="margin-bottom:1.5rem;">
+
+        <!-- Skill Distribution -->
+        <div class="card">
+          <div class="card-title">🍩 Workforce Skill Distribution</div>
+          <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
+            <div style="width:200px;flex-shrink:0;">
+              <canvas id="skillDistChart" width="200" height="200"></canvas>
+            </div>
+            <div style="flex:1;min-width:180px;">
+              <div style="background:var(--glass-bg);border:var(--border-glass);border-radius:var(--radius-lg);padding:1rem;margin-bottom:0.875rem;">
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;text-align:center;">
+                  <div>
+                    <div style="font-family:var(--font-display);font-weight:800;font-size:1.375rem;color:var(--green-400);">12%</div>
+                    <div style="font-size:.7rem;color:var(--text-muted);margin-top:2px;">Expert</div>
+                  </div>
+                  <div>
+                    <div style="font-family:var(--font-display);font-weight:800;font-size:1.375rem;color:var(--blue-400);">28%</div>
+                    <div style="font-size:.7rem;color:var(--text-muted);margin-top:2px;">Advanced</div>
+                  </div>
+                  <div>
+                    <div style="font-family:var(--font-display);font-weight:800;font-size:1.375rem;color:var(--saffron-400);">38%</div>
+                    <div style="font-size:.7rem;color:var(--text-muted);margin-top:2px;">Intermediate</div>
+                  </div>
+                </div>
+              </div>
+              <div style="padding:.75rem;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.18);border-radius:var(--radius-md);font-size:.8rem;color:var(--red-400);">
+                📌 <b>22%</b> of officials are at Beginner level and need priority upskilling through iGOT Karmayogi.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Predictive Analytics -->
+        <div class="card">
+          <div class="card-title">🔮 Predicted Skill Demand (Next 12 Months)</div>
+          <div class="chart-wrap" style="height:220px;">
+            <canvas id="predictiveChart" style="height:220px;"></canvas>
+          </div>
+          <div style="font-size:.75rem;color:var(--text-muted);margin-top:.75rem;">
+            🤖 AI model based on government digital transformation roadmap and workforce data.
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3: Top Courses + Department Summary -->
+      <div class="grid-2" style="margin-bottom:1.5rem;">
+
+        <div class="card">
+          <div class="card-title">🏆 Most Enrolled iGOT Courses</div>
+          <div style="overflow-x:auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Course</th>
+                  <th>Domain</th>
+                  <th>Enrolled</th>
+                  <th>Completion</th>
+                </tr>
+              </thead>
+              <tbody id="top-courses-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🏛️ Department Summary</div>
+          <div style="overflow-x:auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Department</th>
+                  <th>Officials</th>
+                  <th>Avg Score</th>
+                  <th>Courses</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>NSO</td><td>342</td><td><span style="color:var(--green-400);font-weight:700;">76%</span></td><td>1,240</td><td><span class="badge badge-green">On Track</span></td></tr>
+                <tr><td>DIID</td><td>89</td><td><span style="color:var(--blue-400);font-weight:700;">82%</span></td><td>456</td><td><span class="badge badge-green">On Track</span></td></tr>
+                <tr><td>ESD</td><td>124</td><td><span style="color:var(--saffron-400);font-weight:700;">61%</span></td><td>389</td><td><span class="badge badge-yellow">Moderate</span></td></tr>
+                <tr><td>SD</td><td>78</td><td><span style="color:var(--saffron-400);font-weight:700;">58%</span></td><td>210</td><td><span class="badge badge-yellow">Moderate</span></td></tr>
+                <tr><td>NSSTA</td><td>45</td><td><span style="color:var(--green-400);font-weight:700;">91%</span></td><td>387</td><td><span class="badge badge-green">Excellent</span></td></tr>
+                <tr><td>ISD</td><td>67</td><td><span style="color:var(--red-400);font-weight:700;">44%</span></td><td>89</td><td><span class="badge badge-red">Needs Action</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Officials Table -->
+      <div class="card">
+        <div class="card-title" style="flex-wrap:wrap;gap:.75rem;">
+          <span>👤 Officials Overview</span>
+          <div class="flex gap-3 ml-auto" style="flex-wrap:wrap;">
+            <input type="text" class="form-input" placeholder="Search officials…" style="width:220px;padding:.4rem .875rem;font-size:.8125rem;" id="user-search" oninput="filterUsers()">
+            <button class="btn btn-outline btn-sm" onclick="App.toast('Export initiated for 745 users','info')">Export CSV</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Official</th>
+                <th>Designation</th>
+                <th>Department</th>
+                <th>Overall Score</th>
+                <th>Courses Done</th>
+                <th>Last Active</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="users-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /page-body -->
+  </main>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+<script src="js/competency.js"></script>
+<script src="js/igot.js"></script>
+<script src="js/charts.js"></script>
+<script>
+(function() {
+  const user = App.requireAuth();
+  if (!user) return;
+  document.getElementById('sidebar').innerHTML = App.getSidebarHTML('admin');
+
+  // KPI animation
+  setTimeout(() => {
+    App.animateCount(document.getElementById('kpi-users'), 745);
+    document.getElementById('kpi-avg-score').textContent = '68%';
+    App.animateCount(document.getElementById('kpi-courses'), 3412);
+    document.getElementById('kpi-igot').textContent = '73%';
+  }, 300);
+
+  // Charts — wait for layout to settle
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      Charts.createOrgHeatmap('orgHeatmapChart');
+      Charts.createEffectivenessChart('effectivenessChart');
+      Charts.createSkillDistribution('skillDistChart');
+      Charts.createPredictiveChart('predictiveChart');
+    }, 100);
+  });
+
+  // Top courses
+  const topCourses = [...iGOT.COURSES].sort((a,b) => b.enrolled - a.enrolled).slice(0, 8);
+  const tbody = document.getElementById('top-courses-tbody');
+  const domainColors = {statistical:'blue',technical:'purple',digital_gov:'teal',behavioural:'saffron'};
+  topCourses.forEach((c, i) => {
+    const completion = Math.round(60 + Math.random() * 35);
+    tbody.innerHTML += `
+      <tr>
+        <td style="color:var(--text-muted);font-weight:600;">${i+1}</td>
+        <td style="max-width:180px;">
+          <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-primary);font-weight:500;" title="${c.title}">${c.title}</div>
+        </td>
+        <td><span class="badge badge-${domainColors[c.domain]||'blue'}" style="font-size:.6rem;">${c.domain.replace('_',' ')}</span></td>
+        <td style="font-weight:600;">${c.enrolled.toLocaleString('en-IN')}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:.5rem;">
+            <div class="progress-track" style="width:55px;"><div class="progress-fill blue" style="width:${completion}%"></div></div>
+            <span style="font-size:.75rem;">${completion}%</span>
+          </div>
+        </td>
+      </tr>`;
+  });
+
+  // Officials list
+  const OFFICIALS = [
+    {name:'Priya Sharma',designation:'Statistical Officer',dept:'NSO',score:72,courses:8,lastActive:'2h ago'},
+    {name:'Amit Verma',designation:'Deputy Director',dept:'DIID',score:85,courses:14,lastActive:'1d ago'},
+    {name:'Sunita Rao',designation:'Data Analyst',dept:'ESD',score:64,courses:6,lastActive:'3d ago'},
+    {name:'Rajesh Kumar',designation:'Director',dept:'DIID',score:91,courses:22,lastActive:'1h ago'},
+    {name:'Meera Pillai',designation:'Field Investigator',dept:'NSO',score:48,courses:3,lastActive:'1w ago'},
+    {name:'Vikram Singh',designation:'IT Officer',dept:'NIC',score:78,courses:11,lastActive:'2d ago'},
+    {name:'Anita Joshi',designation:'Research Officer',dept:'NSSTA',score:88,courses:18,lastActive:'5h ago'},
+    {name:'Deepak Nair',designation:'Statistical Officer',dept:'SD',score:55,courses:5,lastActive:'4d ago'},
+    {name:'Pooja Mehta',designation:'Deputy Director',dept:'NSO',score:80,courses:12,lastActive:'1d ago'},
+    {name:'Suresh Babu',designation:'Data Analyst',dept:'ISD',score:42,courses:2,lastActive:'2w ago'},
+  ];
+  let filtered = [...OFFICIALS];
+
+  function renderUsers(list) {
+    const tbody = document.getElementById('users-tbody');
+    tbody.innerHTML = '';
+    list.forEach(o => {
+      const sc = o.score >= 75 ? 'green' : o.score >= 55 ? 'saffron' : 'red';
+      const scColor = {green:'var(--green-400)',saffron:'var(--saffron-400)',red:'var(--red-400)'}[sc];
+      tbody.innerHTML += `
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:.625rem;">
+              <div style="width:32px;height:32px;border-radius:50%;background:var(--grad-primary);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;font-size:.7rem;color:white;flex-shrink:0;">${o.name.split(' ').map(n=>n[0]).join('')}</div>
+              <span style="color:var(--text-primary);font-weight:500;white-space:nowrap;">${o.name}</span>
+            </div>
+          </td>
+          <td style="white-space:nowrap;">${o.designation}</td>
+          <td><span class="badge badge-blue" style="font-size:.6rem;">${o.dept}</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:.5rem;">
+              <div class="progress-track" style="width:55px;"><div class="progress-fill ${sc}" style="width:${o.score}%"></div></div>
+              <span style="font-weight:700;color:${scColor};">${o.score}%</span>
+            </div>
+          </td>
+          <td style="font-weight:600;color:var(--text-primary);">${o.courses}</td>
+          <td style="color:var(--text-muted);white-space:nowrap;">${o.lastActive}</td>
+          <td>
+            <div style="display:flex;gap:.25rem;">
+              <button class="btn btn-ghost btn-sm" style="padding:.3rem .6rem;font-size:.75rem;" onclick="App.toast('Viewing profile of ${o.name}','info')">View</button>
+              <button class="btn btn-ghost btn-sm" style="padding:.3rem .6rem;font-size:.75rem;" onclick="App.toast('Nudge sent to ${o.name}','success')">Nudge</button>
+            </div>
+          </td>
+        </tr>`;
+    });
+  }
+
+  renderUsers(filtered);
+
+  window.filterUsers = function() {
+    const q = document.getElementById('user-search').value.toLowerCase();
+    filtered = OFFICIALS.filter(o =>
+      o.name.toLowerCase().includes(q) ||
+      o.designation.toLowerCase().includes(q) ||
+      o.dept.toLowerCase().includes(q)
+    );
+    renderUsers(filtered);
+  };
+
+})();
+</script>
+</body>
+</html>

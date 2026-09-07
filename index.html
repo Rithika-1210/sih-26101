@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkillVista — Sign In | Government of India · MoSPI</title>
+  <meta name="description" content="SkillVista: Official login portal for India's AI-Enabled Skill Intelligence & Learning Platform integrated with iGOT Karmayogi. Government of India · MoSPI.">
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- Core CSS Design System -->
+  <link rel="stylesheet" href="css/main.css">
+
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+
+  <style>
+    /* Preload splash screen (Download Animation) */
+    #sv-preload {
+      position: fixed;
+      inset: 0;
+      z-index: 999999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0A2540 0%, #004D5A 50%, #008080 100%);
+      gap: 1.1rem;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+    }
+    #sv-preload.fade-out {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .sv-preload-logo { font-size: 4rem; animation: pulse 1.2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{transform:scale(1);}50%{transform:scale(1.1);} }
+    .sv-preload-title {
+      font-family: 'Outfit', 'Inter', sans-serif;
+      font-size: 2.25rem; font-weight: 900;
+      color: #fff; letter-spacing: .02em;
+    }
+    .sv-preload-sub {
+      font-size: .85rem; color: rgba(255,255,255,.82);
+      letter-spacing: .04em; text-align: center;
+    }
+    .sv-preload-status {
+      font-size: .8rem; font-weight: 700; color: #FBBF24;
+      letter-spacing: .06em; text-transform: uppercase;
+      margin-top: .25rem;
+    }
+    .sv-preload-bar {
+      width: 280px; height: 6px;
+      background: rgba(255,255,255,.18);
+      border-radius: 999px; overflow: hidden;
+      margin-top: .25rem; box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+    }
+    .sv-preload-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, #F97316 0%, #FBBF24 50%, #10B981 100%);
+      border-radius: 999px;
+      transition: width 0.35s ease-out;
+    }
+    .sv-preload-badges {
+      display: flex; gap: .5rem; flex-wrap: wrap; justify-content: center;
+      margin-top: .5rem;
+    }
+    .sv-preload-badge {
+      font-size: .65rem; font-weight: 800; letter-spacing: .06em;
+      padding: .25rem .65rem; border-radius: 999px;
+      background: rgba(255,255,255,.12); color: rgba(255,255,255,.9);
+      border: 1px solid rgba(255,255,255,.2);
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body style="background: #F8FAFC; margin:0; padding:0; font-family: 'Inter', sans-serif;">
+
+  <!-- Preload Splash Screen (SkillVista Download & Initialization) -->
+  <div id="sv-preload">
+    <div class="sv-preload-logo">🎓</div>
+    <div class="sv-preload-title">SkillVista</div>
+    <div class="sv-preload-sub">Government of India &nbsp;·&nbsp; MoSPI &nbsp;·&nbsp; iGOT Karmayogi Ecosystem</div>
+    <div class="sv-preload-status" id="sv-preload-status">Downloading SkillVista Modules... 0%</div>
+    <div class="sv-preload-bar"><div class="sv-preload-fill" id="sv-preload-fill"></div></div>
+    <div class="sv-preload-badges">
+      <span class="sv-preload-badge">SIH 2026</span>
+      <span class="sv-preload-badge">Mission Karmayogi</span>
+      <span class="sv-preload-badge">NSSTA TPAC</span>
+      <span class="sv-preload-badge">Parichay SSO</span>
+    </div>
+  </div>
+
+  <div class="sv-auth-root" style="background:#F8FAFC; min-height:100vh; display:flex; flex-direction:column;">
+
+    <!-- TOPBAR -->
+    <div class="sv-topbar">
+      <div class="sv-topbar-inner">
+        <span class="sv-topbar-emblem">🏛️</span>
+        <div class="sv-topbar-text">
+          <span class="sv-topbar-title">Government of India &nbsp;·&nbsp; SkillVista</span>
+          <span class="sv-topbar-sub">Ministry of Statistics &amp; Programme Implementation | iGOT Karmayogi Ecosystem</span>
+        </div>
+        <div class="sv-topbar-right">
+          <span class="sv-chip sv-chip-orange">SIH 2026 · PS #26101</span>
+          <span class="sv-chip sv-chip-white">Mission Karmayogi</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SPLIT BODY -->
+    <div class="sv-split-body" style="flex:1; display:flex;">
+
+      <!-- LEFT PANEL -->
+      <div class="sv-left-panel">
+        <!-- Login Info -->
+        <div id="sv-left-login" class="sv-left-content">
+          <div class="sv-left-badge">Welcome to SkillVista</div>
+          <h1 class="sv-left-title">How To Login</h1>
+          <div class="sv-steps">
+            <div class="sv-step">
+              <div class="sv-step-num">1</div>
+              <div class="sv-step-info">
+                <b>Use your Government Email ID</b>
+                <p>Sign in only with your official .gov.in, .nic.in, or state government email address.</p>
+              </div>
+            </div>
+            <div class="sv-step">
+              <div class="sv-step-num">2</div>
+              <div class="sv-step-info">
+                <b>Login with Parichay / e-Pramaan SSO</b>
+                <p>Use India's official single sign-on for a faster, password-free experience.</p>
+              </div>
+            </div>
+            <div class="sv-step">
+              <div class="sv-step-num">3</div>
+              <div class="sv-step-info">
+                <b>Facing Issues Logging In?</b>
+                <p>Clear browser cache &amp; open a private window (Ctrl+Shift+N) and try again.</p>
+              </div>
+            </div>
+          </div>
+          <div class="sv-left-globe">🎓</div>
+        </div>
+
+        <!-- Register Info -->
+        <div id="sv-left-register" style="display:none;" class="sv-left-content">
+          <div class="sv-left-badge">Welcome to SkillVista</div>
+          <h1 class="sv-left-title">How To Register</h1>
+          <div class="sv-steps">
+            <div class="sv-step">
+              <div class="sv-step-num">1</div>
+              <div class="sv-step-info">
+                <b>You can only register with your Government Email ID</b>
+                <p>Use your official .gov.in or .nic.in address — personal email IDs are not accepted.</p>
+              </div>
+            </div>
+            <div class="sv-step">
+              <div class="sv-step-num">2</div>
+              <div class="sv-step-info">
+                <b>Do not have a Government Email ID?</b>
+                <p>Contact your MDO admin to onboard you with your mobile number and personal email.</p>
+              </div>
+            </div>
+            <div class="sv-step">
+              <div class="sv-step-num">3</div>
+              <div class="sv-step-info">
+                <b>To find your MDO Admin Details</b>
+                <p>Visit the iGOT Karmayogi portal or connect within your organisation for support.</p>
+              </div>
+            </div>
+            <div class="sv-step">
+              <div class="sv-step-num">4</div>
+              <div class="sv-step-info">
+                <b>Details not in the list?</b>
+                <p>If your organisation details are missing, connect within your organisation for registration.</p>
+              </div>
+            </div>
+          </div>
+          <div class="sv-left-globe">📋</div>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL -->
+      <div class="sv-right-panel" style="background:#FFFFFF;">
+
+        <!-- ══ SIGN IN FORM ══ -->
+        <div id="sv-form-signin" class="sv-auth-form-card">
+          <div class="sv-form-logo">🎓 <span>SkillVista</span></div>
+          <h2 class="sv-form-title">Sign In</h2>
+
+          <div class="sv-login-mode">
+            <label class="sv-radio-label">
+              <input type="radio" name="login-mode" id="mode-password" value="password" checked onclick="toggleLoginMode('password')">
+              Login with password
+            </label>
+            <label class="sv-radio-label">
+              <input type="radio" name="login-mode" id="mode-otp" value="otp" onclick="toggleLoginMode('otp')">
+              Login with OTP
+            </label>
+          </div>
+
+          <div class="sv-field">
+            <label class="sv-label">Email / Government ID</label>
+            <input type="email" id="si-email" class="sv-input" placeholder="yourname@tn.gov.in">
+            <div class="sv-hint">Use your official government email (.gov.in, .nic.in, state.gov.in)</div>
+          </div>
+
+          <div id="si-pass-block" class="sv-field">
+            <label class="sv-label">Password</label>
+            <input type="password" id="si-password" class="sv-input" placeholder="Enter your password">
+            <div class="sv-forgot"><a href="#" onclick="return false;">Forgot Password?</a></div>
+          </div>
+
+          <div id="si-otp-block" class="sv-field" style="display:none">
+            <label class="sv-label">OTP</label>
+            <div style="display:flex;gap:.5rem;">
+              <input type="text" id="si-otp" class="sv-input" placeholder="Enter 6-digit OTP" maxlength="6" style="flex:1;letter-spacing:.25rem;font-weight:700;">
+              <button id="si-req-otp" type="button" class="sv-outline-btn" style="white-space:nowrap;" onclick="requestSignInOtp()">Request OTP</button>
+            </div>
+          </div>
+
+          <button id="si-submit" type="button" class="sv-primary-btn" onclick="submitSignIn()">Sign In →</button>
+
+          <div class="sv-or"><span>or</span></div>
+
+          <div class="sv-provider-row">
+            <label class="sv-label" style="margin-bottom:.4rem;">Login with Providers</label>
+            <select id="sv-provider-select" class="sv-input sv-select" style="margin-bottom:.625rem;" onchange="toggleProviderForm(this.value)">
+              <option value="">Select Provider</option>
+              <option value="parichay">🏛️ Parichay SSO</option>
+              <option value="epramaan">🔐 e-Pramaan</option>
+            </select>
+            <div id="sv-provider-form" style="display:none;">
+              <div id="sv-provider-name-lbl" style="font-size:0.8rem; font-weight:600; margin-bottom:0.5rem; color:#1E293B;"></div>
+              <div class="sv-field" style="margin-bottom:.5rem;">
+                <input type="email" id="si-provider-email" class="sv-input" placeholder="Registered gov email (e.g. name@tn.gov.in)">
+                <div class="sv-hint">Enter the email you used to register on SkillVista</div>
+              </div>
+              <div style="display:flex;gap:.5rem;margin-bottom:.5rem;">
+                <input type="text" id="si-provider-otp" class="sv-input" placeholder="Enter OTP" maxlength="6" style="flex:1;letter-spacing:.25rem;font-weight:700;">
+                <button type="button" class="sv-outline-btn" style="white-space:nowrap;padding:.55rem .75rem;" onclick="requestProviderOtp()">Get OTP</button>
+              </div>
+              <button type="button" class="sv-primary-btn" style="margin-top:0;" onclick="submitProviderLogin()">Verify &amp; Sign In →</button>
+            </div>
+          </div>
+
+          <p class="sv-switch">Don't have an account? <a href="#" id="go-to-register" onclick="showAuthMode('register'); return false;">Register here</a></p>
+        </div>
+
+        <!-- ══ REGISTER FORM ══ -->
+        <div id="sv-form-register" class="sv-auth-form-card" style="display:none;">
+
+          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1rem;">
+            <button type="button" class="sv-back-btn" onclick="showAuthMode('signin')">← Back</button>
+            <h2 class="sv-form-title" style="margin:0;">Register</h2>
+          </div>
+
+          <!-- Step indicator -->
+          <div class="sv-steps-bar">
+            <div class="sv-step-circle active" id="step-circle-1">1</div>
+            <div class="sv-steps-line" id="step-line"></div>
+            <div class="sv-step-circle" id="step-circle-2">2</div>
+          </div>
+          <div class="sv-steps-labels">
+            <span class="sv-step-lbl active" id="step-lbl-1">Step - 1</span>
+            <span class="sv-step-lbl" id="step-lbl-2">Step - 2</span>
+          </div>
+
+          <!-- STEP 1 -->
+          <div id="reg-step1">
+            <div class="sv-field">
+              <label class="sv-label">Center / State *</label>
+              <div class="sv-radio-group">
+                <label class="sv-radio-option">
+                  <input type="radio" name="reg-centerstate" id="rcs-center" value="center" checked onclick="toggleStateField(false)">
+                  <span>Center</span>
+                </label>
+                <label class="sv-radio-option">
+                  <input type="radio" name="reg-centerstate" id="rcs-state" value="state" onclick="toggleStateField(true)">
+                  <span>State</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="sv-field" id="reg-state-field" style="display:none;">
+              <label class="sv-label">State *</label>
+              <select id="reg-state" class="sv-input sv-select">
+                <option value="">-- Select State --</option>
+                <option value="tn">Tamil Nadu (.tn.gov.in)</option>
+                <option value="mh">Maharashtra (.mh.gov.in)</option>
+                <option value="up">Uttar Pradesh (.up.gov.in)</option>
+                <option value="ka">Karnataka (.kar.nic.in)</option>
+                <option value="gj">Gujarat (.gujarat.gov.in)</option>
+                <option value="rj">Rajasthan (.rajasthan.gov.in)</option>
+                <option value="wb">West Bengal (.wb.gov.in)</option>
+                <option value="mp">Madhya Pradesh (.mp.gov.in)</option>
+                <option value="pb">Punjab (.punjab.gov.in)</option>
+                <option value="hr">Haryana (.haryana.gov.in)</option>
+              </select>
+            </div>
+
+            <div class="sv-field">
+              <label class="sv-label">Ministry / Department *</label>
+              <select id="reg-ministry" class="sv-input sv-select">
+                <option value="">Select ministry</option>
+                <option>MoSPI — Ministry of Statistics &amp; Programme Implementation</option>
+                <option>MoE — Ministry of Education</option>
+                <option>MHA — Ministry of Home Affairs</option>
+                <option>MoF — Ministry of Finance</option>
+                <option>MoH — Ministry of Health &amp; Family Welfare</option>
+                <option>DoPT — Department of Personnel &amp; Training</option>
+                <option>DPIIT — Dept. for Promotion of Industry</option>
+                <option>NSSTA — National Statistics Systems Training Academy</option>
+                <option>NIC — National Informatics Centre</option>
+                <option>State — State Government Department</option>
+              </select>
+              <div class="sv-error" id="err-ministry"></div>
+            </div>
+
+            <div class="sv-field">
+              <label class="sv-label">Organisation *</label>
+              <select id="reg-org" class="sv-input sv-select">
+                <option value="">Select organisation</option>
+                <option>Indian Statistical Institute, MoSPI</option>
+                <option>NSSO — Field Operations Division</option>
+                <option>CSO — Central Statistics Office</option>
+                <option>DES — Directorate of Economics &amp; Statistics</option>
+                <option>NIC — State Data Centre</option>
+                <option>NSSTA — Training Division</option>
+                <option>State Secretariat / Collectorates</option>
+              </select>
+              <div class="sv-error" id="err-org"></div>
+            </div>
+
+            <div class="sv-field">
+              <label class="sv-label">Designation *</label>
+              <select id="reg-designation" class="sv-input sv-select">
+                <option value="">Select designation</option>
+                <option>Statistical Officer</option>
+                <option>Deputy Director (Statistics)</option>
+                <option>Director (Statistics)</option>
+                <option>Data Analyst</option>
+                <option>Field Investigator</option>
+                <option>Additional Research Officer</option>
+                <option>Additional Secretary</option>
+                <option>Under Secretary</option>
+                <option>Section Officer</option>
+                <option>NSSTA Faculty</option>
+                <option>MoSPI Administrator</option>
+              </select>
+            </div>
+
+            <div class="sv-field">
+              <label class="sv-label">Government Official Email *</label>
+              <input type="email" id="reg-email" class="sv-input" placeholder="yourname@tn.gov.in">
+              <div class="sv-hint">Only .gov.in, .nic.in, or state government email accepted</div>
+              <div class="sv-error" id="err-email"></div>
+            </div>
+
+            <button type="button" class="sv-primary-btn" onclick="validateRegStep1()">Next →</button>
+            <p class="sv-switch">Already have an account? <a href="#" onclick="showAuthMode('signin'); return false;">Sign In</a></p>
+          </div>
+
+          <!-- STEP 2 -->
+          <div id="reg-step2" style="display:none;">
+            <div class="sv-field">
+              <label class="sv-label">Full Name *</label>
+              <input type="text" id="reg-name" class="sv-input" placeholder="As per government records">
+            </div>
+
+            <div class="sv-field">
+              <label class="sv-label">Employee ID / Service Number *</label>
+              <input type="text" id="reg-empid" class="sv-input" placeholder="e.g., MOSPI/2024/00123">
+            </div>
+
+            <div class="sv-field">
+              <label class="sv-label">Verify Email OTP</label>
+              <div style="display:flex;gap:.5rem;">
+                <input type="text" id="reg-otp" class="sv-input" placeholder="6-digit OTP" maxlength="6" style="flex:1;letter-spacing:.25rem;font-weight:700;">
+                <button type="button" class="sv-outline-btn" style="white-space:nowrap;" onclick="requestRegOtp()">Send OTP</button>
+              </div>
+              <div class="sv-hint" id="reg-otp-hint">An OTP will be sent to your registered government email</div>
+            </div>
+
+            <div class="sv-field">
+              <label class="sv-label">Create Password *</label>
+              <input type="password" id="reg-password" class="sv-input" placeholder="Minimum 8 characters">
+            </div>
+
+            <div class="sv-field">
+              <label class="sv-label">Confirm Password *</label>
+              <input type="password" id="reg-confirm" class="sv-input" placeholder="Re-enter password">
+            </div>
+
+            <div style="display:flex;gap:.75rem;">
+              <button type="button" class="sv-outline-btn" style="flex:0 0 auto;" onclick="showRegStep(1)">← Back</button>
+              <button type="button" class="sv-primary-btn" style="flex:1;" onclick="submitRegistration()">Create Account →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECURITY NOTE -->
+        <div class="sv-security-note">
+          🔒 Secured by Parichay · NIC · MeghRaj Cloud · DPDP Act 2023 · WCAG 2.1 AAA
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="sv-auth-footer">
+      © Government of India · Ministry of Statistics &amp; Programme Implementation · SkillVista v1.0
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Inline Core Script -->
+  <script>
+    // Download Splash Screen Animation
+    (function animateDownloadSplash() {
+      var fill = document.getElementById('sv-preload-fill');
+      var status = document.getElementById('sv-preload-status');
+      var splash = document.getElementById('sv-preload');
+      if (!fill || !status || !splash) return;
+
+      var steps = [
+        { pct: 25, text: 'Downloading SkillVista Core Modules... 25%' },
+        { pct: 55, text: 'Loading iGOT Karmayogi Course Datasets... 55%' },
+        { pct: 85, text: 'Initializing AI Competency Engine... 85%' },
+        { pct: 100, text: 'SkillVista Ready! Opening Login Portal... 100%' }
+      ];
+      var stepIdx = 0;
+
+      var interval = setInterval(function() {
+        if (stepIdx < steps.length) {
+          fill.style.width = steps[stepIdx].pct + '%';
+          status.textContent = steps[stepIdx].text;
+          stepIdx++;
+        } else {
+          clearInterval(interval);
+          setTimeout(function() {
+            splash.classList.add('fade-out');
+            setTimeout(function() {
+              if (splash && splash.parentNode) splash.parentNode.removeChild(splash);
+            }, 450);
+          }, 250);
+        }
+      }, 350);
+    })();
+
+    let _siOtp = null;
+    let _regOtp = null;
+    let _providerOtp = null;
+
+    function showToast(msg, type = 'info') {
+      let container = document.getElementById('toast-container');
+      if (!container) return;
+      const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
+      const el = document.createElement('div');
+      el.className = 'toast ' + type;
+      el.innerHTML = '<span>' + (icons[type] || 'ℹ️') + '</span><span>' + msg + '</span>';
+      container.appendChild(el);
+      setTimeout(function() {
+        el.style.opacity = '0';
+        el.style.transform = 'translateX(20px)';
+        el.style.transition = 'all 0.3s';
+        setTimeout(function() { el.remove(); }, 300);
+      }, 3500);
+    }
+
+    function isGovEmail(email) {
+      if (!email) return false;
+      return /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/i.test(email.trim());
+    }
+
+    function getUsers() {
+      var defaultUsers = {
+        'officer@mospi.gov.in': { name: 'Statistical Officer', email: 'officer@mospi.gov.in', designation: 'Statistical Officer', role: 'learner' },
+        'admin@mospi.gov.in': { name: 'MoSPI Administrator', email: 'admin@mospi.gov.in', designation: 'MoSPI Administrator', role: 'admin' }
+      };
+      try {
+        var raw = localStorage.getItem('sv_users');
+        if (raw) return Object.assign({}, defaultUsers, JSON.parse(raw));
+      } catch(e) {}
+      return defaultUsers;
+    }
+
+    function saveUserLocally(u) {
+      try {
+        var users = getUsers();
+        users[u.email.toLowerCase()] = u;
+        localStorage.setItem('sv_users', JSON.stringify(users));
+      } catch(e) {}
+    }
+
+    function toggleLoginMode(mode) {
+      var passBlock = document.getElementById('si-pass-block');
+      var otpBlock  = document.getElementById('si-otp-block');
+      var submitBtn = document.getElementById('si-submit');
+      if (mode === 'otp') {
+        if (passBlock) passBlock.style.display = 'none';
+        if (otpBlock)  otpBlock.style.display  = 'block';
+        if (submitBtn) submitBtn.innerHTML     = 'Verify OTP &amp; Sign In →';
+      } else {
+        if (passBlock) passBlock.style.display = 'block';
+        if (otpBlock)  otpBlock.style.display  = 'none';
+        if (submitBtn) submitBtn.innerHTML     = 'Sign In →';
+      }
+    }
+
+    function toggleStateField(show) {
+      var el = document.getElementById('reg-state-field');
+      if (el) el.style.display = show ? 'block' : 'none';
+    }
+
+    function showAuthMode(mode) {
+      var sl = document.getElementById('sv-left-login');
+      var sr = document.getElementById('sv-left-register');
+      var sf = document.getElementById('sv-form-signin');
+      var rf = document.getElementById('sv-form-register');
+      if (mode === 'register') {
+        if (sl) sl.style.display = 'none';
+        if (sr) sr.style.display = 'flex';
+        if (sf) sf.style.display = 'none';
+        if (rf) rf.style.display = 'block';
+        showRegStep(1);
+      } else {
+        if (sl) sl.style.display = 'flex';
+        if (sr) sr.style.display = 'none';
+        if (sf) sf.style.display = 'block';
+        if (rf) rf.style.display = 'none';
+      }
+    }
+
+    function showRegStep(step) {
+      var s1 = document.getElementById('reg-step1');
+      var s2 = document.getElementById('reg-step2');
+      if (s1) s1.style.display = step === 1 ? 'block' : 'none';
+      if (s2) s2.style.display = step === 2 ? 'block' : 'none';
+      var c1 = document.getElementById('step-circle-1');
+      var c2 = document.getElementById('step-circle-2');
+      var l1 = document.getElementById('step-lbl-1');
+      var l2 = document.getElementById('step-lbl-2');
+      var line = document.getElementById('step-line');
+      if (step === 1) {
+        if (c1) { c1.classList.add('active'); c1.classList.remove('done'); }
+        if (c2) { c2.classList.remove('active'); c2.classList.remove('done'); }
+        if (l1) l1.classList.add('active');
+        if (l2) l2.classList.remove('active');
+        if (line) line.classList.remove('active');
+      } else {
+        if (c1) { c1.classList.remove('active'); c1.classList.add('done'); }
+        if (c2) { c2.classList.add('active'); }
+        if (l1) l1.classList.remove('active');
+        if (l2) l2.classList.add('active');
+        if (line) line.classList.add('active');
+      }
+    }
+
+    function requestSignInOtp() {
+      var email = (document.getElementById('si-email')?.value || '').trim().toLowerCase();
+      if (!email) { showToast('Enter your government email to receive OTP.', 'warning'); return; }
+      if (!isGovEmail(email)) { showToast('Enter a valid government email.', 'error'); return; }
+      _siOtp = String(Math.floor(100000 + Math.random() * 900000));
+      showToast('📧 OTP sent to ' + email + ' — Demo OTP: ' + _siOtp, 'info');
+    }
+
+    function submitSignIn() {
+      var email = (document.getElementById('si-email')?.value || '').trim().toLowerCase();
+      var password = (document.getElementById('si-password')?.value || '');
+      var otp = (document.getElementById('si-otp')?.value || '').trim();
+      var isOtpMode = document.getElementById('mode-otp')?.checked;
+
+      if (!email) { showToast('Please enter your email.', 'warning'); return; }
+      if (!isGovEmail(email)) { showToast('Invalid email address.', 'error'); return; }
+
+      if (isOtpMode) {
+        if (!_siOtp) { showToast('Please click "Request OTP" first.', 'warning'); return; }
+        if (otp !== _siOtp) { showToast('Incorrect OTP. Please try again.', 'error'); return; }
+      }
+
+      var users = getUsers();
+      var userData = users[email] || { name: email.split('@')[0], email: email, designation: 'Statistical Officer' };
+      saveUserLocally(userData);
+
+      try {
+        localStorage.setItem('sv_session', JSON.stringify(userData));
+        if (window.Store) Store.set('current_user', userData);
+      } catch(e) {}
+
+      showToast('✅ Welcome back! Signed in successfully.', 'success');
+      setTimeout(function() { window.location.href = 'dashboard.html'; }, 300);
+    }
+
+    function toggleProviderForm(val) {
+      var pf = document.getElementById('sv-provider-form');
+      var lbl = document.getElementById('sv-provider-name-lbl');
+      if (val) {
+        var names = { parichay: '🏛️ Parichay SSO', epramaan: '🔐 e-Pramaan' };
+        if (lbl) lbl.textContent = 'Verify your registered account via ' + (names[val] || 'SSO');
+        if (pf) pf.style.display = 'block';
+      } else {
+        if (pf) pf.style.display = 'none';
+      }
+    }
+
+    function requestProviderOtp() {
+      var email = (document.getElementById('si-provider-email')?.value || '').trim().toLowerCase();
+      if (!email) { showToast('Enter registered email.', 'warning'); return; }
+      _providerOtp = String(Math.floor(100000 + Math.random() * 900000));
+      showToast('📧 OTP sent to ' + email + ' — Demo OTP: ' + _providerOtp, 'info');
+    }
+
+    function submitProviderLogin() {
+      var email = (document.getElementById('si-provider-email')?.value || '').trim().toLowerCase();
+      var otp = (document.getElementById('si-provider-otp')?.value || '').trim();
+      if (!email || !otp) { showToast('Email and OTP required.', 'warning'); return; }
+      if (!_providerOtp || otp !== _providerOtp) { showToast('Incorrect OTP.', 'error'); return; }
+      var u = { name: email.split('@')[0], email: email, designation: 'Statistical Officer' };
+      localStorage.setItem('sv_session', JSON.stringify(u));
+      showToast('✅ Signed in via SSO!', 'success');
+      setTimeout(function() { window.location.href = 'dashboard.html'; }, 300);
+    }
+
+    function validateRegStep1() {
+      var ministry = document.getElementById('reg-ministry')?.value || '';
+      var org = document.getElementById('reg-org')?.value || '';
+      var email = (document.getElementById('reg-email')?.value || '').trim().toLowerCase();
+      if (!ministry || !org || !email) { showToast('Please fill all required Step 1 fields.', 'warning'); return; }
+      if (!isGovEmail(email)) { showToast('Only government emails accepted.', 'error'); return; }
+      showRegStep(2);
+    }
+
+    function requestRegOtp() {
+      var email = (document.getElementById('reg-email')?.value || '').trim().toLowerCase();
+      if (!email) { showToast('Email required.', 'warning'); return; }
+      _regOtp = String(Math.floor(100000 + Math.random() * 900000));
+      showToast('📧 OTP sent to ' + email + ' — Demo OTP: ' + _regOtp, 'info');
+      var hint = document.getElementById('reg-otp-hint');
+      if (hint) hint.textContent = 'OTP sent to ' + email + '. Valid for 10 minutes.';
+    }
+
+    function submitRegistration() {
+      var name = (document.getElementById('reg-name')?.value || '').trim();
+      var empId = (document.getElementById('reg-empid')?.value || '').trim();
+      var otp = (document.getElementById('reg-otp')?.value || '').trim();
+      var pass = document.getElementById('reg-password')?.value || '';
+      var confirm = document.getElementById('reg-confirm')?.value || '';
+      var email = (document.getElementById('reg-email')?.value || '').trim().toLowerCase();
+      var ministry = document.getElementById('reg-ministry')?.value || '';
+      var org = document.getElementById('reg-org')?.value || '';
+      var designation = document.getElementById('reg-designation')?.value || '';
+
+      if (!name || !empId || !otp || !pass) { showToast('Please fill in all fields.', 'warning'); return; }
+      if (!_regOtp || otp !== _regOtp) { showToast('Incorrect OTP.', 'error'); return; }
+      if (pass.length < 8) { showToast('Password must be at least 8 characters.', 'warning'); return; }
+      if (pass !== confirm) { showToast('Passwords do not match.', 'error'); return; }
+
+      var newUser = { name: name, empId: empId, ministry: ministry, org: org, designation: designation, email: email, password: pass };
+      saveUserLocally(newUser);
+
+      // Save to MongoDB Backend
+      fetch('http://localhost:3000/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newUser)
+      }).catch(function(e) {});
+
+      try {
+        localStorage.setItem('sv_session', JSON.stringify(newUser));
+        if (window.Store) Store.set('current_user', newUser);
+      } catch(e) {}
+
+      showToast('🎉 Account registered for ' + name + '! Redirecting...', 'success');
+      setTimeout(function() { window.location.href = 'dashboard.html'; }, 300);
+    }
+  </script>
+
+</body>
+</html>

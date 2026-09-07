@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Architecture — SkillVista | MoSPI</title>
+  <meta name="description" content="SkillVista System Architecture — iGOT Karmayogi integration, FRAC competency mapping, Gemini AI vector engine, and MoSPI infrastructure.">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    .arch-card { background:var(--glass-bg); border:var(--border-glass); border-radius:var(--radius-xl); padding:1.5rem; transition:all var(--tr-base); }
+    .arch-card:hover { transform:translateY(-3px); border-color:rgba(255,255,255,0.15); box-shadow:var(--shadow-md); }
+    .arch-pill { display:inline-flex; align-items:center; gap:0.5rem; padding:0.35rem 0.85rem; border-radius:var(--radius-full); font-size:0.75rem; font-weight:700; background:rgba(59,130,246,0.12); color:var(--blue-400); border:1px solid rgba(59,130,246,0.25); }
+    .flow-arrow { display:flex; align-items:center; justify-content:center; color:var(--saffron-400); font-size:1.5rem; margin:0.5rem 0; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main-content">
+
+    <header class="page-header">
+      <div>
+        <div class="page-title">⚡ System Architecture & AI Pipeline</div>
+        <div class="page-subtitle">India's Official Statistical System · NSO Survey Operations Division</div>
+      </div>
+      <div style="margin-left:auto; display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+        <span class="badge badge-blue" style="font-size:0.72rem; padding:0.35rem 0.75rem; font-weight:700; border:1px solid rgba(59,130,246,0.3);">FRAC FRAMEWORK</span>
+        <span class="badge badge-saffron" style="font-size:0.72rem; padding:0.35rem 0.75rem; font-weight:700; border:1px solid rgba(255,153,51,0.3);">GEMINI AI</span>
+        <button onclick="App.logout(); window.location.href='index.html';" class="btn btn-ghost btn-sm" style="font-size:0.75rem;">Sign Out ⎋</button>
+      </div>
+    </header>
+
+    <div class="page-body">
+
+      <!-- Architecture Hero -->
+      <div style="background:linear-gradient(135deg,rgba(15,22,41,0.9),rgba(17,24,39,0.9));border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius-2xl);padding:2rem;margin-bottom:2rem;box-shadow:var(--shadow-xl);">
+        <div style="display:flex;align-items:center;gap:1.25rem;margin-bottom:1rem;flex-wrap:wrap;">
+          <div style="width:52px;height:52px;border-radius:var(--radius-lg);background:var(--grad-primary);display:flex;align-items:center;justify-content:center;font-size:1.75rem;box-shadow:var(--shadow-blue);flex-shrink:0;">⚡</div>
+          <div>
+            <h2 style="font-size:1.5rem;font-weight:800;color:white;margin-bottom:0.25rem;">SkillVista Enterprise AI Architecture</h2>
+            <div style="font-size:0.875rem;color:var(--text-muted);">End-to-End Capacity Building Engine for MoSPI Officials & iGOT Karmayogi</div>
+          </div>
+        </div>
+        <p style="font-size:0.9rem;color:var(--text-secondary);max-width:900px;line-height:1.6;">
+          SkillVista bridges the gap between civil service competency frameworks (FRAC) and digital learning ecosystems (iGOT Karmayogi). By leveraging Google Gemini 1.5 LLM models, vector search algorithms, and MongoDB storage, SkillVista offers real-time skill-gap diagnosis and automated quiz generation.
+        </p>
+      </div>
+
+      <!-- Core Layers Grid -->
+      <div class="grid-3" style="gap:1.5rem;margin-bottom:2rem;">
+        
+        <!-- Layer 1 -->
+        <div class="arch-card">
+          <div class="arch-pill" style="margin-bottom:1rem;">Layer 1 · Presentation</div>
+          <h3 style="font-size:1.15rem;margin-bottom:0.5rem;color:white;">Frontend Workspace</h3>
+          <p style="font-size:0.825rem;color:var(--text-muted);margin-bottom:1rem;">Vanilla JS + CSS3 Design System tailored for government portals with glassmorphism, responsive navigation sidebar, and instant preloader splash.</p>
+          <ul style="font-size:0.8rem;color:var(--text-secondary);display:flex;flex-direction:column;gap:0.4rem;">
+            <li>• Multi-page static architecture</li>
+            <li>• Chart.js Radar & Progress Visualizations</li>
+            <li>• PDF.js Client-side Document Parser</li>
+          </ul>
+        </div>
+
+        <!-- Layer 2 -->
+        <div class="arch-card">
+          <div class="arch-pill" style="background:rgba(255,153,51,0.12);color:var(--saffron-400);border-color:rgba(255,153,51,0.25);margin-bottom:1rem;">Layer 2 · AI & Assessment Engine</div>
+          <h3 style="font-size:1.15rem;margin-bottom:0.5rem;color:white;">Gemini AI & FRAC Vector</h3>
+          <p style="font-size:0.825rem;color:var(--text-muted);margin-bottom:1rem;">Computes 4-domain competency scores (Statistical, Technical, Digital Gov, Behavioural) and dynamically ingests training manuals for MCQ generation.</p>
+          <ul style="font-size:0.8rem;color:var(--text-secondary);display:flex;flex-direction:column;gap:0.4rem;">
+            <li>• Gemini 1.5 Flash Model Integration</li>
+            <li>• Automated Gap Vector Computation</li>
+            <li>• Contextual Citation & MCQ Generator</li>
+          </ul>
+        </div>
+
+        <!-- Layer 3 -->
+        <div class="arch-card">
+          <div class="arch-pill" style="background:rgba(16,185,129,0.12);color:var(--green-400);border-color:rgba(16,185,129,0.25);margin-bottom:1rem;">Layer 3 · Integration & Data</div>
+          <h3 style="font-size:1.15rem;margin-bottom:0.5rem;color:white;">iGOT Hub & MongoDB</h3>
+          <p style="font-size:0.825rem;color:var(--text-muted);margin-bottom:1rem;">Connects to 1,500+ government courses on igot.gov.in and persists user sessions, assessments, and progress in MongoDB Atlas.</p>
+          <ul style="font-size:0.8rem;color:var(--text-secondary);display:flex;flex-direction:column;gap:0.4rem;">
+            <li>• Express.js REST API Server</li>
+            <li>• MongoDB User & Progress Collections</li>
+            <li>• Live iGOT Deep Links & SSO Mock</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Data Flow Diagram -->
+      <div class="card" style="margin-bottom:2rem;">
+        <div class="card-title" style="margin-bottom:1rem;"><span>🔄</span> End-to-End Data Flow Pipeline</div>
+        <div style="background:rgba(4,8,15,0.6);border:var(--border-glass);border-radius:var(--radius-lg);padding:1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+          
+          <div style="text-align:center;flex:1;min-width:140px;">
+            <div style="font-size:2rem;margin-bottom:0.35rem;">👤</div>
+            <div style="font-weight:700;font-size:0.85rem;color:white;">Statistical Officer</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">Priya Sharma (NSO)</div>
+          </div>
+
+          <div style="color:var(--blue-400);font-size:1.25rem;">➔</div>
+
+          <div style="text-align:center;flex:1;min-width:140px;">
+            <div style="font-size:2rem;margin-bottom:0.35rem;">🎯</div>
+            <div style="font-weight:700;font-size:0.85rem;color:white;">FRAC Diagnostic</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">4 Domain Assessment</div>
+          </div>
+
+          <div style="color:var(--saffron-400);font-size:1.25rem;">➔</div>
+
+          <div style="text-align:center;flex:1;min-width:140px;">
+            <div style="font-size:2rem;margin-bottom:0.35rem;">🤖</div>
+            <div style="font-weight:700;font-size:0.85rem;color:white;">Gemini Vector Engine</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">Gap Analysis & Quiz</div>
+          </div>
+
+          <div style="color:var(--green-400);font-size:1.25rem;">➔</div>
+
+          <div style="text-align:center;flex:1;min-width:140px;">
+            <div style="font-size:2rem;margin-bottom:0.35rem;">🏛️</div>
+            <div style="font-weight:700;font-size:0.85rem;color:white;">iGOT Karmayogi Hub</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">1,500+ Recommended Courses</div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+<script>
+(function() {
+  const user = App.requireAuth();
+  if (!user) return;
+  document.getElementById('sidebar').innerHTML = App.getSidebarHTML('architecture');
+})();
+</script>
+</body>
+</html>
