@@ -56,8 +56,6 @@ function initSkillVistaApp() {
       return;
     }
 
-    const isQuizPage = (State.currentPage === 'quiz');
-
     root.innerHTML = `
       <div class="app-layout">
         ${renderSidebar()}
@@ -67,12 +65,12 @@ function initSkillVistaApp() {
             ${renderPageContent()}
           </div>
         </main>
-        ${!isQuizPage ? renderChatbotWidget() : ''}
+        ${renderChatbotWidget()}
       </div>
     `;
 
     bindAppEvents();
-    if (!isQuizPage) bindChatbotEvents();
+    bindChatbotEvents();
     if (typeof window.hidePreload === 'function') window.hidePreload();
   }
 
@@ -412,22 +410,44 @@ function initSkillVistaApp() {
   function renderSidebar() {
     const user = State.user;
     const navItems = [
-      { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-      { id: 'assessment', label: 'Competency Assessment', icon: '🎯' },
-      { id: 'courses', label: 'iGOT Courses', icon: '📚' },
-      { id: 'quiz', label: 'AI Quiz Generator', icon: '🤖' },
+      {
+        id: 'dashboard',
+        label: 'Dashboard',
+        icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>`
+      },
+      {
+        id: 'assessment',
+        label: 'Competency Assessment',
+        icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`
+      },
+      {
+        id: 'courses',
+        label: 'iGOT Courses',
+        icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`
+      },
+      {
+        id: 'quiz',
+        label: 'AI Quiz Generator',
+        icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2V4a2 2 0 0 1 2-2z"/><circle cx="9" cy="11" r="1"/><circle cx="15" cy="11" r="1"/><path d="M10 15h4"/></svg>`
+      },
     ];
 
     if (user && (user.role === 'admin' || user.role === 'trainer')) {
-      navItems.push({ id: 'admin', label: 'Admin Analytics', icon: '📈' });
+      navItems.push({
+        id: 'admin',
+        label: 'Admin Analytics',
+        icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`
+      });
     }
 
     return `
       <aside class="sidebar">
         <div class="sidebar-logo">
-          <div class="sidebar-logo-icon">🎓</div>
+          <div class="sidebar-logo-icon" style="display:flex;align-items:center;justify-content:center;color:#0D9488;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          </div>
           <div>
-            <div class="sidebar-logo-text">Skill<span style="color:var(--saffron-400)">Vista</span></div>
+            <div class="sidebar-logo-text">Skill<span style="color:var(--saffron-400,#F97316)">Vista</span></div>
             <div class="sidebar-logo-sub">MoSPI · iGOT Ecosystem</div>
           </div>
         </div>
@@ -436,7 +456,7 @@ function initSkillVistaApp() {
           <div class="sidebar-section-label">Platform Navigation</div>
           ${navItems.map(item => `
             <a href="#${item.id}" class="nav-item ${State.currentPage === item.id || (item.id === 'courses' && State.currentPage === 'learningpath') ? 'active' : ''}" data-page="${item.id}">
-              <span style="font-size:1.1rem;">${item.icon}</span>
+              <span class="nav-icon" style="display:flex;align-items:center;justify-content:center;width:20px;">${item.icon}</span>
               <span>${item.label}</span>
               ${item.badge ? `<span class="badge badge-green ml-auto" style="font-size:0.6rem;">${item.badge}</span>` : ''}
             </a>
@@ -585,8 +605,33 @@ function initSkillVistaApp() {
   // 5. DASHBOARD VIEW
   // ═══════════════════════════════════════════════════════════════════════════
   function renderDashboard() {
+    const u = State.user || {};
     const overall = CompetencyEngine.overallScore(State.scores);
+    const ministryName = u.department || u.ministry || 'Ministry of Statistics & Programme Implementation';
+
     return `
+      <!-- Welcome & Ministry Profile Banner -->
+      <div class="card mb-6" style="background: linear-gradient(135deg, #0F172A, #1E293B); color: white; padding: 1.25rem 1.5rem; border-radius: 12px; border-left: 5px solid #0D9488;">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 48px; height: 48px; border-radius: 50%; background: #0D9488; color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.25rem; flex-shrink: 0;">
+              ${u.name ? u.name[0].toUpperCase() : 'O'}
+            </div>
+            <div>
+              <h3 style="color: white; margin: 0 0 0.25rem 0; font-size: 1.15rem; font-weight: 700;">Welcome, ${u.name || 'Officer'}!</h3>
+              <div style="font-size: 0.85rem; color: #94A3B8; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                <span>🏛️ <b>Ministry / Department:</b> <span style="color: #2DD4BF; font-weight: 700;">${ministryName}</span></span>
+                <span>•</span>
+                <span>💼 <b>Role:</b> ${u.designation || 'Statistical Officer'}</span>
+              </div>
+            </div>
+          </div>
+          <button onclick="window.navigateTo('profile')" class="btn btn-sm" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); font-size: 0.8rem;">
+            Edit Profile &amp; Ministry ✏️
+          </button>
+        </div>
+      </div>
+
       <div class="stats-grid">
         <div class="stat-card blue">
           <div class="stat-icon blue">📊</div>
@@ -1265,26 +1310,30 @@ function initSkillVistaApp() {
         <div id="chatbot-panel-el" class="chatbot-panel hidden">
           <div class="chatbot-header">
             <div class="chatbot-header-info">
-              <div class="chatbot-avatar">🤖</div>
+              <div class="chatbot-avatar" style="display:flex;align-items:center;justify-content:center;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2V4a2 2 0 0 1 2-2z"/><circle cx="9" cy="11" r="1"/><circle cx="15" cy="11" r="1"/><path d="M10 15h4"/></svg>
+              </div>
               <div>
-                <div class="chatbot-name">SkillVista Assistant</div>
-                <div class="chatbot-status">Powered by Gemini AI</div>
+                <div class="chatbot-name" style="font-weight:800;letter-spacing:0.02em;">SkillVista</div>
+                <div class="chatbot-status" style="font-size:0.72rem;opacity:0.9;">Live Page Analysis &amp; AI Assistant</div>
               </div>
             </div>
             <button id="chatbot-close-btn" class="chatbot-close">×</button>
           </div>
 
           <div id="chat-messages-container" class="chatbot-messages">
-            <div class="chat-msg bot">👋 Hello! I am SkillVista Assistant. Ask me about your competency gaps, iGOT courses, or statistical concepts!</div>
+            <div class="chat-msg bot">👋 Hello! I am <b>SkillVista</b> AI. Ask me anything about what's currently on your screen, your competency gaps, or iGOT Karmayogi courses!</div>
           </div>
 
           <div class="chatbot-input-area">
-            <input type="text" id="chat-input-field" class="chatbot-input" placeholder="Ask about courses, skills...">
+            <input type="text" id="chat-input-field" class="chatbot-input" placeholder="Ask SkillVista about this page...">
             <button id="chat-send-btn" class="chatbot-send">➤</button>
           </div>
         </div>
 
-        <button id="chatbot-toggle-btn" class="chatbot-toggle">🤖</button>
+        <button id="chatbot-toggle-btn" class="chatbot-toggle" title="Ask SkillVista" style="display:flex;align-items:center;justify-content:center;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2V4a2 2 0 0 1 2-2z"/><circle cx="9" cy="11" r="1"/><circle cx="15" cy="11" r="1"/><path d="M10 15h4"/></svg>
+        </button>
       </div>
     `;
   }
@@ -1353,6 +1402,75 @@ function initSkillVistaApp() {
     const chatInput = document.getElementById('chat-input-field');
     const msgsContainer = document.getElementById('chat-messages-container');
 
+    if (!panel || !msgsContainer) return;
+
+    function formatChatReply(t) {
+      if (!t) return '';
+      return t
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/`([^`]+)`/g, '<code style="background:#F1F5F9;padding:2px 5px;border-radius:4px;font-size:0.85em;">$1</code>')
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" style="color:#0D9488;font-weight:700;text-decoration:underline;">$1</a>')
+        .replace(/\n/g, '<br>');
+    }
+
+    function getHistory() {
+      try {
+        const raw = localStorage.getItem('sv_chat_history');
+        return raw ? JSON.parse(raw) : [];
+      } catch(e) { return []; }
+    }
+
+    function saveHistoryItem(role, text) {
+      try {
+        const h = getHistory();
+        h.push({ role, text, time: new Date().toISOString() });
+        localStorage.setItem('sv_chat_history', JSON.stringify(h));
+      } catch(e) {}
+    }
+
+    function isPanelOpen() {
+      return localStorage.getItem('sv_chat_open') === 'true';
+    }
+
+    function setPanelOpen(open) {
+      localStorage.setItem('sv_chat_open', open ? 'true' : 'false');
+    }
+
+    // ══ RESTORE PERSISTENT CHAT HISTORY ══
+    const history = getHistory();
+    msgsContainer.innerHTML = '';
+    if (history.length > 0) {
+      history.forEach(item => {
+        const div = document.createElement('div');
+        div.className = `chat-msg ${item.role}`;
+        if (item.role === 'bot') {
+          div.innerHTML = formatChatReply(item.text);
+        } else {
+          div.textContent = item.text;
+        }
+        msgsContainer.appendChild(div);
+      });
+    } else {
+      const welcome = "👋 Hello! I am **SkillVista** AI. Ask me anything about what's currently on your screen, your competency gaps, or iGOT Karmayogi courses!";
+      const div = document.createElement('div');
+      div.className = 'chat-msg bot';
+      div.innerHTML = formatChatReply(welcome);
+      msgsContainer.appendChild(div);
+      saveHistoryItem('bot', welcome);
+    }
+    msgsContainer.scrollTop = msgsContainer.scrollHeight;
+
+    // ══ RESTORE OPEN PANEL STATE ACROSS NAVIGATION ══
+    if (isPanelOpen()) {
+      panel.classList.remove('hidden');
+    } else {
+      panel.classList.add('hidden');
+    }
+
     if (chatInput) {
       chatInput.disabled = false;
       chatInput.readOnly = false;
@@ -1360,19 +1478,25 @@ function initSkillVistaApp() {
 
     if (toggleBtn && panel) toggleBtn.onclick = (e) => {
       if (e) e.stopPropagation();
-      panel.classList.toggle('hidden');
-      if (!panel.classList.contains('hidden') && chatInput) {
-        chatInput.disabled = false;
-        chatInput.readOnly = false;
-        setTimeout(() => {
-          chatInput.focus();
-        }, 50);
+      const nowHidden = panel.classList.contains('hidden');
+      if (nowHidden) {
+        panel.classList.remove('hidden');
+        setPanelOpen(true);
+        if (chatInput) {
+          chatInput.disabled = false;
+          chatInput.readOnly = false;
+          setTimeout(() => chatInput.focus(), 50);
+        }
+      } else {
+        panel.classList.add('hidden');
+        setPanelOpen(false);
       }
     };
 
     if (closeBtn && panel) closeBtn.onclick = (e) => {
       if (e) e.stopPropagation();
       panel.classList.add('hidden');
+      setPanelOpen(false);
     };
 
     if (panel) {
@@ -1383,24 +1507,31 @@ function initSkillVistaApp() {
       if (!chatInput || !chatInput.value.trim()) return;
       const text = chatInput.value.trim();
       chatInput.value = '';
+
+      // Append & Save User Message
       const uMsg = document.createElement('div');
       uMsg.className = 'chat-msg user';
       uMsg.textContent = text;
       msgsContainer.appendChild(uMsg);
+      saveHistoryItem('user', text);
 
+      // Loading indicator
       const loadingMsg = document.createElement('div');
       loadingMsg.className = 'chat-msg bot';
       loadingMsg.textContent = 'Analyzing page & generating answer...';
       msgsContainer.appendChild(loadingMsg);
       msgsContainer.scrollTop = msgsContainer.scrollHeight;
 
+      let replyText = '';
       try {
         const pageContext = getPageAnalysisContext();
-        const reply = await GeminiService.chatAssistant(text, pageContext);
-        loadingMsg.innerHTML = reply.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+        replyText = await GeminiService.chatAssistant(text, pageContext);
       } catch(err) {
-        loadingMsg.textContent = `⚠️ ${err.message}`;
+        replyText = GeminiService.generateSmartPageResponse(text, getPageAnalysisContext());
       }
+
+      loadingMsg.innerHTML = formatChatReply(replyText);
+      saveHistoryItem('bot', replyText);
       msgsContainer.scrollTop = msgsContainer.scrollHeight;
     };
 
@@ -1923,19 +2054,22 @@ function initSkillVistaApp() {
         u.employeeId  = document.getElementById('prof-empid')?.value.trim() || u.employeeId;
         u.designation = document.getElementById('prof-designation')?.value.trim() || u.designation;
         u.department  = document.getElementById('prof-department')?.value.trim() || u.department;
+        u.ministry    = u.department;
         u.organisation= document.getElementById('prof-org')?.value.trim() || u.organisation;
         u.mobile      = document.getElementById('prof-mobile')?.value.trim() || u.mobile;
         u.state       = document.getElementById('prof-state')?.value || u.state;
         // Recompute avatar
         u.avatar = u.name ? u.name[0].toUpperCase() : (u.avatar || 'U');
         State.user = u;
+        if (window.Store) Store.set('current_user', u);
+        try { localStorage.setItem('sv_session', JSON.stringify(u)); } catch(e) {}
         // Persist in user store
         if (u.email) {
           const users = getUsers();
           users[u.email.toLowerCase()] = Object.assign({}, users[u.email.toLowerCase()], u);
           saveUsers(users);
         }
-        showToast('✅ Profile updated successfully!', 'success');
+        showToast('✅ Profile & Ministry updated successfully!', 'success');
         render();
       });
     }
@@ -2127,17 +2261,40 @@ function initSkillVistaApp() {
     const u2 = State.user;
     if (u2) bindCertDeleteEvents('sv_certs_' + (u2.email || ''), JSON.parse(localStorage.getItem('sv_certs_' + (u2.email || '')) || '[]'));
 
-    // MCQ Generation (AI Quiz Generator -> Question Bank)
+    // Quiz File Upload & Text Ingestion Listener
+    const quizFileInput = document.getElementById('quiz-file-input');
+    if (quizFileInput) {
+      quizFileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        showToast(`📄 Extracting text from ${file.name}...`, 'info');
+        let text = '';
+        if (window.GeminiService && typeof GeminiService.extractTextFromFile === 'function') {
+          text = await GeminiService.extractTextFromFile(file);
+        } else {
+          text = await new Promise((res) => {
+            const r = new FileReader();
+            r.onload = ev => res(ev.target.result);
+            r.readAsText(file);
+          });
+        }
+        const textElem = document.getElementById('quiz-paste-text');
+        if (textElem) textElem.value = text;
+        showToast(`✅ Extracted ${text.length} characters from ${file.name}!`, 'success');
+      });
+    }
+
+    // MCQ Generation (AI Quiz Generator -> Interactive Assessment)
     const generateBtn = document.getElementById('generate-mcq-btn');
     if (generateBtn) {
       generateBtn.addEventListener('click', async () => {
-        const pasteText = document.getElementById('quiz-paste-text').value;
-        const numQ = document.getElementById('quiz-num-q').value;
-        const diff = document.getElementById('quiz-diff').value;
+        const pasteText = document.getElementById('quiz-paste-text')?.value || '';
+        const numQ = document.getElementById('quiz-num-q')?.value || 10;
+        const diff = document.getElementById('quiz-diff')?.value || 'Medium';
         const container = document.getElementById('quiz-output-container');
 
-        if (!pasteText || pasteText.trim().length < 50) {
-          showToast('Please enter at least 50 characters of learning material.', 'warning');
+        if (!pasteText || pasteText.trim().length < 20) {
+          showToast('Please enter or upload learning material (at least 20 characters).', 'warning');
           return;
         }
 
@@ -2146,7 +2303,7 @@ function initSkillVistaApp() {
 
         try {
           const questions = await GeminiService.generateMCQs(pasteText, numQ, diff);
-          showToast(`Generated ${questions.length} Bloom-tagged MCQs using Gemini AI!`, 'success');
+          showToast(`Generated ${questions.length} Bloom-tagged MCQs! Launching Test...`, 'success');
 
           // Save generated questions to local store & MongoDB Backend Server
           try {
@@ -2155,44 +2312,104 @@ function initSkillVistaApp() {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ questions, topic: pasteText.slice(0, 100), difficulty: diff })
-            }).then(r => r.json()).then(d => {
-              if (d.success) console.log('✅ Stored MCQs in MongoDB Database server');
             }).catch(e => {});
           } catch(e) {}
 
-          container.innerHTML = `
-            <div style="background: linear-gradient(135deg, #0A2540, #008080); color: white; padding: 1.25rem 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
-              <div>
-                <h4 style="color: white; margin: 0 0 0.25rem 0; font-weight: 700;">✅ Saved to Question Bank (${questions.length} Questions)</h4>
-                <p style="margin: 0; opacity: 0.9; font-size: 0.85rem;">Generated using Gemini AI LLM. Ready for civil service officer testing in MCQ Assessment.</p>
-              </div>
-              <button onclick="navigateTo('mcq')" class="btn" style="background: #F97316; color: white; font-weight: 700; border: none; padding: 0.6rem 1.25rem; white-space: nowrap; cursor: pointer;">
-                📝 Start MCQ Assessment →
-              </button>
-            </div>
+          if (window.startInteractiveTestRunner) {
+            window.startInteractiveTestRunner(questions, container);
+          } else {
+            let userAnswers = {};
+            function renderInteractiveView(isSubmitted = false) {
+              let correctCount = 0;
+              if (isSubmitted) {
+                questions.forEach((q, idx) => { if (userAnswers[idx] === q.correct) correctCount++; });
+              }
+              const scorePct = Math.round((correctCount / (questions.length || 1)) * 100);
 
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-              <h3>Generated Assessment Items (${questions.length})</h3>
-              <span class="badge badge-green">Gemini AI Citations Verified</span>
-            </div>
+              container.innerHTML = `
+                <div style="background: linear-gradient(135deg, #0F172A, #0D9488); color: white; padding: 1.25rem 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                  <div>
+                    <h4 style="color: white; margin: 0 0 0.25rem 0; font-weight: 700; font-size: 1.15rem;">
+                      ${isSubmitted ? `🏆 Test Completed! Score: ${scorePct}% (${correctCount}/${questions.length} Correct)` : `📝 Interactive Skill Assessment (${questions.length} Questions)`}
+                    </h4>
+                    <p style="margin: 0; opacity: 0.9; font-size: 0.85rem;">
+                      ${isSubmitted ? 'Evaluation complete. Detailed explanations & citations shown below.' : 'Select your answer for each question and click Submit Test.'}
+                    </p>
+                  </div>
+                  <div>
+                    ${isSubmitted
+                      ? `<button id="app-retake-btn" class="btn" style="background:#F97316; color:white; font-weight:700; border:none; padding:0.6rem 1.25rem; border-radius:8px; cursor:pointer;">🔄 Retake Test</button>`
+                      : `<button id="app-submit-btn" class="btn" style="background:#10B981; color:white; font-weight:700; border:none; padding:0.65rem 1.35rem; border-radius:8px; cursor:pointer;">🎯 Submit Test &amp; View Score</button>`
+                    }
+                  </div>
+                </div>
 
-            ${questions.map((q, idx) => `
-              <div class="mcq-card mb-4">
-                <div style="font-weight:600; margin-bottom:0.75rem;">Q${idx + 1}. ${q.question}</div>
-                <div>
-                  ${Object.entries(q.options).map(([k, v]) => `
-                    <div class="mcq-option ${q.correct === k ? 'correct' : ''}">
-                      <div class="mcq-option-letter">${k}</div>
-                      <span>${v}</span>
-                    </div>
-                  `).join('')}
+                <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                  ${questions.map((q, idx) => {
+                    const selectedOpt = userAnswers[idx];
+                    const isCorrect = selectedOpt === q.correct;
+                    let cardBorder = isSubmitted ? (isCorrect ? '2px solid #10B981' : '2px solid #EF4444') : '1px solid #E2E8F0';
+                    let cardBg = isSubmitted ? (isCorrect ? 'rgba(16,185,129,0.02)' : 'rgba(239,68,68,0.02)') : '#FFFFFF';
+
+                    return `
+                      <div class="card mb-3" style="border: ${cardBorder}; background: ${cardBg}; border-radius: 12px; padding: 1.25rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:start; gap:0.5rem; margin-bottom:0.875rem;">
+                          <div style="font-weight:700; color:#0F172A; font-size:1rem; flex:1;">
+                            Q${idx + 1}. ${q.question}
+                            ${q.bloomLevel ? `<span class="badge badge-blue ml-2" style="font-size:0.7rem; margin-left:0.5rem;">${q.bloomLevel}</span>` : ''}
+                          </div>
+                          ${isSubmitted ? (isCorrect ? `<span class="badge badge-green">✓ Correct (+1)</span>` : `<span class="badge badge-red" style="background:#FEE2E2; color:#991B1B;">✕ Incorrect</span>`) : ''}
+                        </div>
+
+                        <div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:0.75rem;">
+                          ${Object.entries(q.options).map(([k, v]) => {
+                            let optBorder = '1px solid #E2E8F0';
+                            let optBg = '#F8FAFC';
+                            let optColor = '#334155';
+                            if (isSubmitted) {
+                              if (k === q.correct) { optBorder = '2px solid #10B981'; optBg = 'rgba(16,185,129,0.12)'; optColor = '#065F46'; }
+                              else if (selectedOpt === k && !isCorrect) { optBorder = '2px solid #EF4444'; optBg = 'rgba(239,68,68,0.12)'; optColor = '#991B1B'; }
+                            } else if (selectedOpt === k) {
+                              optBorder = '2px solid #0D9488'; optBg = 'rgba(13,148,136,0.08)'; optColor = '#0F172A';
+                            }
+                            return `
+                              <label style="display:flex; align-items:center; gap:0.75rem; padding:0.75rem 1rem; border:${optBorder}; border-radius:8px; background:${optBg}; color:${optColor}; cursor:${isSubmitted ? 'default' : 'pointer'}; font-size:0.9rem; font-weight:${selectedOpt === k ? '700' : '400'};">
+                                <input type="radio" name="app_q_${idx}" value="${k}" ${selectedOpt === k ? 'checked' : ''} ${isSubmitted ? 'disabled' : ''} style="width:18px; height:18px; accent-color:#0D9488;">
+                                <span style="font-weight:800; min-width:22px;">${k}.</span>
+                                <span style="flex:1;">${v}</span>
+                                ${isSubmitted && k === q.correct ? `<span style="margin-left:auto; color:#059669; font-weight:700; font-size:0.8rem;">✓ Correct Answer</span>` : ''}
+                              </label>
+                            `;
+                          }).join('')}
+                        </div>
+
+                        ${isSubmitted ? `
+                          <div style="font-size:0.85rem; color:#334155; background:#F1F5F9; padding:0.75rem 1rem; border-radius:8px; border-left:4px solid #0D9488; margin-top:0.75rem;">
+                            💡 <b>Explanation:</b> ${q.explanation} ${q.citation ? `<br><span style="color:#64748B; font-size:0.78rem;">Citation: ${q.citation}</span>` : ''}
+                          </div>
+                        ` : ''}
+                      </div>
+                    `;
+                  }).join('')}
                 </div>
-                <div class="mcq-explanation mt-2">
-                  💡 <b>Explanation &amp; Citation:</b> ${q.explanation} ${q.citation ? `[${q.citation}]` : ''}
-                </div>
-              </div>
-            `).join('')}
-          `;
+              `;
+
+              if (!isSubmitted) {
+                questions.forEach((_, idx) => {
+                  const radios = container.querySelectorAll(`input[name="app_q_${idx}"]`);
+                  radios.forEach(r => {
+                    r.onchange = (e) => { userAnswers[idx] = e.target.value; };
+                  });
+                });
+                const subBtn = document.getElementById('app-submit-btn');
+                if (subBtn) subBtn.onclick = () => renderInteractiveView(true);
+              } else {
+                const retakeBtn = document.getElementById('app-retake-btn');
+                if (retakeBtn) retakeBtn.onclick = () => { userAnswers = {}; renderInteractiveView(false); };
+              }
+            }
+            renderInteractiveView(false);
+          }
         } catch(err) {
           showToast(err.message, 'error');
         } finally {

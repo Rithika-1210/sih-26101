@@ -45,12 +45,7 @@
     <header class="page-header">
       <div>
         <div class="page-title">Competency Profiling & Gap Engine</div>
-        <div class="page-subtitle">India's Official Statistical System · NSO Survey Operations Division</div>
-      </div>
-      <div style="margin-left:auto; display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
-        <span class="badge badge-blue" style="font-size:0.72rem; padding:0.35rem 0.75rem; font-weight:700; border:1px solid rgba(59,130,246,0.3);">FRAC FRAMEWORK</span>
-        <span class="badge badge-saffron" style="font-size:0.72rem; padding:0.35rem 0.75rem; font-weight:700; border:1px solid rgba(255,153,51,0.3);">GEMINI AI</span>
-        <button onclick="App.logout(); window.location.href='index.html';" class="btn btn-ghost btn-sm" style="font-size:0.75rem;">Sign Out ⎋</button>
+        <div class="page-subtitle">India's Official Statistical System · MoSPI</div>
       </div>
     </header>
 
@@ -190,6 +185,7 @@
 <div id="toast-container" class="toast-container"></div>
 
 <script src="js/config.js"></script>
+<script src="js/services/geminiService.js"></script>
 <script src="js/app.js"></script>
 <script src="js/competency.js"></script>
 <script>
@@ -336,7 +332,11 @@
     const score = CompetencyEngine.scoreAssessment(selectedDomain, answers);
     allScores[selectedDomain] = score;
     CompetencyEngine.saveScores(allScores);
-    App.toast(`Assessment complete! Score: ${Math.round(score * 20)}%`, 'success');
+    if (typeof iGOT !== 'undefined' && typeof iGOT.recommendCoursesAsync === 'function') {
+      const gaps = CompetencyEngine.computeGaps(allScores, user.designation);
+      iGOT.recommendCoursesAsync(allScores, gaps, user.designation);
+    }
+    App.toast(`Assessment complete! Score: ${Math.round(score * 20)}% · DistilBERT Recommendations Refreshed`, 'success');
     showResults();
   }
 

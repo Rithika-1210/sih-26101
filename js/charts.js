@@ -366,9 +366,70 @@ window.Charts = (function() {
     return chart;
   }
 
+  // ---- Statistical Domain Analytics Chart ----
+  function createStatisticsAnalyticsChart(canvasId, scores = {}) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return null;
+    if (ctx._chart) ctx._chart.destroy();
+
+    const labels = [
+      'National Accounts & GDP',
+      'CPI & Price Statistics',
+      'Survey Sampling & Design',
+      'SDG Indicators & NIF',
+      'Data Analytics & Python',
+      'Digital Gov & Security'
+    ];
+
+    const baseScore = scores.statistical || 1.38;
+    const dataValues = [
+      Math.min(100, Math.round((baseScore * 16) + 32)),
+      Math.min(100, Math.round((baseScore * 18) + 38)),
+      Math.min(100, Math.round((baseScore * 15) + 28)),
+      Math.min(100, Math.round((baseScore * 20) + 42)),
+      Math.min(100, Math.round(((scores.technical || 0.8) * 20) + 25)),
+      Math.min(100, Math.round(((scores.digital_gov || 0.6) * 20) + 35))
+    ];
+
+    const chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Mastery Analysis %',
+          data: dataValues,
+          backgroundColor: [
+            'rgba(59, 130, 246, 0.85)',
+            'rgba(16, 185, 129, 0.85)',
+            'rgba(139, 92, 246, 0.85)',
+            'rgba(249, 115, 22, 0.85)',
+            'rgba(20, 184, 166, 0.85)',
+            'rgba(236, 72, 153, 0.85)'
+          ],
+          borderRadius: 6,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 11, weight: '600' } } },
+          y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#64748b', callback: v => v + '%' } }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ` Mastery Score: ${ctx.parsed.y}%` } }
+        }
+      }
+    });
+    ctx._chart = chart;
+    return chart;
+  }
+
   return {
     createRadarChart, createGapBarChart, createProgressLine,
     createDomainDoughnut, createOrgHeatmap, createEffectivenessChart,
-    createSkillDistribution, createPredictiveChart
+    createSkillDistribution, createPredictiveChart, createStatisticsAnalyticsChart
   };
 })();

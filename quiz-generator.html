@@ -22,12 +22,7 @@
     <header class="page-header" style="background:#0F172A !important; border-bottom:3px solid #14B8A6 !important;">
       <div>
         <div class="page-title" style="color:#FFFFFF !important; font-weight:800; font-size:1.35rem;">Intelligent Assessment &amp; Quiz Engine</div>
-        <div class="page-subtitle" style="color:rgba(255,255,255,0.8) !important;">India's Official Statistical System · NSO Survey Operations Division</div>
-      </div>
-      <div style="margin-left:auto; display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
-        <span class="badge badge-blue" style="font-size:0.72rem; padding:0.35rem 0.75rem; font-weight:700; border:1px solid rgba(59,130,246,0.3);">FRAC FRAMEWORK</span>
-        <span class="badge badge-saffron" style="font-size:0.72rem; padding:0.35rem 0.75rem; font-weight:700; border:1px solid rgba(255,153,51,0.3);">GEMINI AI</span>
-        <button onclick="App.logout(); window.location.href='index.html';" class="btn btn-ghost btn-sm" style="font-size:0.75rem;">Sign Out ⎋</button>
+        <div class="page-subtitle" style="color:rgba(255,255,255,0.8) !important;">India's Official Statistical System · MoSPI</div>
       </div>
     </header>
 
@@ -99,6 +94,7 @@
 <div id="toast-container" class="toast-container"></div>
 
 <script src="js/config.js"></script>
+<script src="js/services/geminiService.js"></script>
 <script src="js/app.js"></script>
 <script src="js/igot.js"></script>
 <script>
@@ -108,18 +104,178 @@
   document.getElementById('sidebar').innerHTML = App.getSidebarHTML('quiz');
 })();
 
-function handleFileSelected(event) {
+async function handleFileSelected(event) {
   const file = event.target.files[0];
   if (!file) return;
   const badge = document.getElementById('file-info-badge');
   badge.style.display = 'block';
-  badge.innerHTML = `📄 Selected File: <b>${file.name}</b> (${Math.round(file.size/1024)} KB)`;
+  badge.innerHTML = `📄 Selected File: <b>${file.name}</b> (${Math.round(file.size/1024)} KB) — Extracting text...`;
   
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    document.getElementById('quiz-paste-text').value = e.target.result;
-  };
-  reader.readAsText(file);
+  let text = '';
+  if (window.GeminiService && typeof GeminiService.extractTextFromFile === 'function') {
+    text = await GeminiService.extractTextFromFile(file);
+  } else {
+    text = await new Promise((res) => {
+      const r = new FileReader();
+      r.onload = e => res(e.target.result);
+      r.readAsText(file);
+    });
+  }
+  document.getElementById('quiz-paste-text').value = text;
+  badge.innerHTML = `📄 Selected File: <b>${file.name}</b> (${Math.round(file.size/1024)} KB) — ✅ Extracted ${text.length} characters`;
+}
+
+function startInteractiveTestRunner(questions, container) {
+  let userAnswers = {};
+
+  function renderView(isSubmitted = false) {
+    let correctCount = 0;
+    if (isSubmitted) {
+      questions.forEach((q, idx) => {
+        if (userAnswers[idx] === q.correct) correctCount++;
+      });
+    }
+    const scorePct = Math.round((correctCount / (questions.length || 1)) * 100);
+
+    container.innerHTML = `
+      <div style="background: linear-gradient(135deg, #0F172A, #0D9488); color: white; padding: 1.25rem 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h4 style="color: white; margin: 0 0 0.25rem 0; font-weight: 700; font-size: 1.15rem;">
+            ${isSubmitted 
+              ? `🏆 Test Completed! Score: ${scorePct}% (${correctCount}/${questions.length} Correct)` 
+              : `📝 Interactive Skill Assessment (${questions.length} Questions)`}
+          </h4>
+          <p style="margin: 0; opacity: 0.9; font-size: 0.85rem;">
+            ${isSubmitted 
+              ? 'Competency evaluation complete. Detailed citations & explanations shown below.' 
+              : 'Select your answer for each question below and click "Submit Test & View Score".'}
+          </p>
+        </div>
+        <div>
+          ${isSubmitted
+            ? `<button id="interactive-retake-btn" class="btn" style="background:#F97316; color:white; font-weight:700; border:none; padding:0.6rem 1.25rem; border-radius:8px; cursor:pointer;">🔄 Retake Test</button>`
+            : `<button id="interactive-submit-btn" class="btn" style="background:#10B981; color:white; font-weight:700; border:none; padding:0.65rem 1.35rem; border-radius:8px; cursor:pointer; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">🎯 Submit Test &amp; View Score</button>`
+          }
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        ${questions.map((q, idx) => {
+          const selectedOpt = userAnswers[idx];
+          const isCorrect = selectedOpt === q.correct;
+          
+          let cardBorder = '1px solid #E2E8F0';
+          let cardBg = '#FFFFFF';
+          if (isSubmitted) {
+            cardBorder = isCorrect ? '2px solid #10B981' : '2px solid #EF4444';
+            cardBg = isCorrect ? 'rgba(16,185,129,0.02)' : 'rgba(239,68,68,0.02)';
+          }
+
+          return `
+            <div class="card mb-3" style="border: ${cardBorder}; background: ${cardBg}; border-radius: 12px; padding: 1.25rem; transition: all 0.2s;">
+              <div style="display:flex; justify-content:space-between; align-items:start; gap:0.5rem; margin-bottom:0.875rem;">
+                <div style="font-weight:700; color:#0F172A; font-size:1rem; flex:1;">
+                  Q${idx + 1}. ${q.question}
+                  ${q.bloomLevel ? `<span class="badge badge-blue ml-2" style="font-size:0.7rem; margin-left:0.5rem;">${q.bloomLevel}</span>` : ''}
+                </div>
+                ${isSubmitted ? (isCorrect
+                  ? `<span class="badge badge-green" style="font-size:0.78rem; padding:0.25rem 0.6rem; font-weight:700;">✓ Correct (+1)</span>`
+                  : `<span class="badge badge-red" style="background:#FEE2E2; color:#991B1B; font-size:0.78rem; padding:0.25rem 0.6rem; font-weight:700;">✕ Incorrect</span>`
+                ) : ''}
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:0.75rem;">
+                ${Object.entries(q.options).map(([k, v]) => {
+                  let optBorder = '1px solid #E2E8F0';
+                  let optBg = '#F8FAFC';
+                  let optColor = '#334155';
+
+                  if (isSubmitted) {
+                    if (k === q.correct) {
+                      optBorder = '2px solid #10B981';
+                      optBg = 'rgba(16,185,129,0.12)';
+                      optColor = '#065F46';
+                    } else if (selectedOpt === k && !isCorrect) {
+                      optBorder = '2px solid #EF4444';
+                      optBg = 'rgba(239,68,68,0.12)';
+                      optColor = '#991B1B';
+                    }
+                  } else if (selectedOpt === k) {
+                    optBorder = '2px solid #0D9488';
+                    optBg = 'rgba(13,148,136,0.08)';
+                    optColor = '#0F172A';
+                  }
+
+                  return `
+                    <label class="test-opt-label" style="display:flex; align-items:center; gap:0.75rem; padding:0.75rem 1rem; border:${optBorder}; border-radius:8px; background:${optBg}; color:${optColor}; cursor:${isSubmitted ? 'default' : 'pointer'}; font-size:0.9rem; transition:all 0.15s; font-weight:${selectedOpt === k || (isSubmitted && k === q.correct) ? '700' : '400'};">
+                      <input type="radio" name="test_q_${idx}" value="${k}" ${selectedOpt === k ? 'checked' : ''} ${isSubmitted ? 'disabled' : ''} style="width:18px; height:18px; accent-color:#0D9488; cursor:${isSubmitted ? 'default' : 'pointer'};">
+                      <span style="font-weight:800; min-width:22px;">${k}.</span>
+                      <span style="flex:1;">${v}</span>
+                      ${isSubmitted && k === q.correct ? `<span style="margin-left:auto; color:#059669; font-weight:700; font-size:0.8rem;">✓ Correct Answer</span>` : ''}
+                    </label>
+                  `;
+                }).join('')}
+              </div>
+
+              ${isSubmitted ? `
+                <div style="font-size:0.85rem; color:#334155; background:#F1F5F9; padding:0.75rem 1rem; border-radius:8px; border-left:4px solid #0D9488; margin-top:0.75rem;">
+                  💡 <b>Explanation:</b> ${q.explanation} ${q.citation ? `<br><span style="color:#64748B; font-size:0.78rem;">Citation: ${q.citation}</span>` : ''}
+                </div>
+              ` : ''}
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+
+    if (!isSubmitted) {
+      questions.forEach((_, idx) => {
+        const radios = container.querySelectorAll(`input[name="test_q_${idx}"]`);
+        radios.forEach(radio => {
+          radio.onchange = (e) => {
+            userAnswers[idx] = e.target.value;
+            radios.forEach(r => {
+              const label = r.closest('.test-opt-label');
+              if (label) {
+                if (r.checked) {
+                  label.style.border = '2px solid #0D9488';
+                  label.style.background = 'rgba(13,148,136,0.08)';
+                  label.style.fontWeight = '700';
+                } else {
+                  label.style.border = '1px solid #E2E8F0';
+                  label.style.background = '#F8FAFC';
+                  label.style.fontWeight = '400';
+                }
+              }
+            });
+          };
+        });
+      });
+
+      const submitBtn = document.getElementById('interactive-submit-btn');
+      if (submitBtn) {
+        submitBtn.onclick = () => {
+          const count = Object.keys(userAnswers).length;
+          if (count < questions.length) {
+            if (!confirm(`You have answered ${count} of ${questions.length} questions. Do you want to submit your test now?`)) {
+              return;
+            }
+          }
+          renderView(true);
+        };
+      }
+    } else {
+      const retakeBtn = document.getElementById('interactive-retake-btn');
+      if (retakeBtn) {
+        retakeBtn.onclick = () => {
+          userAnswers = {};
+          renderView(false);
+        };
+      }
+    }
+  }
+
+  renderView(false);
 }
 
 async function generateQuizMCQs() {
@@ -148,8 +304,15 @@ async function generateQuizMCQs() {
       ];
     }
 
+    const sourceName = (document.getElementById('quiz-file-input')?.files?.[0]?.name) || 'Ingested Learning Material';
     try {
       localStorage.setItem('sv_question_bank', JSON.stringify(questions));
+      localStorage.setItem('sv_active_quiz', JSON.stringify({
+        questions: questions,
+        source: sourceName,
+        difficulty: diff,
+        timestamp: new Date().toISOString()
+      }));
       fetch('/api/questions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -157,44 +320,58 @@ async function generateQuizMCQs() {
       }).catch(e => {});
     } catch(e) {}
 
-    App.toast(`Generated ${questions.length} Bloom-tagged MCQs using Gemini AI!`, 'success');
-
     container.innerHTML = `
-      <div style="background: linear-gradient(135deg, #0F172A, #0D9488); color: white; padding: 1.25rem 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
-        <div>
-          <h4 style="color: white; margin: 0 0 0.25rem 0; font-weight: 700;">✅ Saved to Question Bank (${questions.length} Questions)</h4>
-          <p style="margin: 0; opacity: 0.9; font-size: 0.85rem;">Generated using Gemini AI LLM. Ready for officer competency testing.</p>
-        </div>
+      <div class="card text-center" style="padding: 3rem 1.5rem; text-align: center; border: 2px solid #14B8A6; background: #F0FDF4; border-radius: 14px;">
+        <div style="font-size: 4rem; margin-bottom: 0.75rem;">🎉</div>
+        <h3 style="color: #0F172A; font-weight: 800; font-size: 1.4rem; margin-bottom: 0.5rem;">
+          ${questions.length} Bloom-Tagged Questions Generated!
+        </h3>
+        <p style="color: #475569; font-size: 0.95rem; margin-bottom: 1.5rem;">
+          Your test has been created. Redirecting to the <b>Module Assessment Page</b> to take the live test...
+        </p>
+        <a href="module-assessment.html" class="btn btn-primary" style="display:inline-flex; align-items:center; justify-content:center; gap:0.5rem; padding:0.85rem 2rem; background:linear-gradient(135deg, #0D9488 0%, #14B8A6 100%); color:white; font-weight:800; font-size:1rem; border-radius:8px; text-decoration:none; box-shadow:0 4px 14px rgba(13,148,136,0.35);">
+          🚀 Start Module Test Now →
+        </a>
       </div>
-
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-        <h3 style="color:#0F172A; font-weight:800;">Generated Assessment Items (${questions.length})</h3>
-        <span class="badge badge-green">Gemini AI Citations Verified</span>
-      </div>
-
-      ${questions.map((q, idx) => `
-        <div class="card mb-4" style="border-left: 4px solid #0D9488; margin-bottom:1rem;">
-          <div style="font-weight:700; color:#0F172A; margin-bottom:0.75rem; font-size:1rem;">
-            Q${idx + 1}. ${q.question}
-            ${q.bloomLevel ? `<span class="badge badge-blue ml-2" style="font-size:0.7rem;">${q.bloomLevel}</span>` : ''}
-          </div>
-          <div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:0.75rem;">
-            ${Object.entries(q.options).map(([k, v]) => `
-              <div style="display:flex; align-items:center; gap:0.6rem; padding:0.6rem 0.85rem; border:1px solid ${q.correct === k ? '#10B981' : '#E2E8F0'}; border-radius:6px; background:${q.correct === k ? 'rgba(16,185,129,0.08)' : '#F8FAFC'};">
-                <span style="font-weight:800; color:${q.correct === k ? '#059669' : '#0F172A'}; min-width:20px;">${k}.</span>
-                <span style="font-size:0.88rem; color:#334155;">${v}</span>
-                ${q.correct === k ? `<span style="margin-left:auto; font-size:0.75rem; color:#059669; font-weight:700;">✓ Correct</span>` : ''}
-              </div>
-            `).join('')}
-          </div>
-          <div style="font-size:0.83rem; color:#475569; background:#F8FAFC; padding:0.6rem 0.8rem; border-radius:6px; border:1px solid #E2E8F0;">
-            💡 <b>Explanation:</b> ${q.explanation} ${q.citation ? `[${q.citation}]` : ''}
-          </div>
-        </div>
-      `).join('')}
     `;
+
+    App.toast(`🎉 ${questions.length} Questions Generated! Opening Module Assessment Test...`, 'success');
+    setTimeout(() => {
+      window.location.href = 'module-assessment.html';
+    }, 700);
+
   } catch(err) {
-    App.toast(err.message, 'error');
+    const questions = GeminiService.generateTopicCourseMCQs ? GeminiService.generateTopicCourseMCQs(pasteText) : [];
+    if (questions.length > 0) {
+      const sourceName = (document.getElementById('quiz-file-input')?.files?.[0]?.name) || 'Ingested Learning Material';
+      localStorage.setItem('sv_question_bank', JSON.stringify(questions));
+      localStorage.setItem('sv_active_quiz', JSON.stringify({
+        questions: questions,
+        source: sourceName,
+        difficulty: diff,
+        timestamp: new Date().toISOString()
+      }));
+      container.innerHTML = `
+        <div class="card text-center" style="padding: 3rem 1.5rem; text-align: center; border: 2px solid #14B8A6; background: #F0FDF4; border-radius: 14px;">
+          <div style="font-size: 4rem; margin-bottom: 0.75rem;">🎉</div>
+          <h3 style="color: #0F172A; font-weight: 800; font-size: 1.4rem; margin-bottom: 0.5rem;">
+            ${questions.length} Questions Generated!
+          </h3>
+          <p style="color: #475569; font-size: 0.95rem; margin-bottom: 1.5rem;">
+            Your test has been created. Redirecting to the <b>Module Assessment Page</b> to take the live test...
+          </p>
+          <a href="module-assessment.html" class="btn btn-primary" style="display:inline-flex; align-items:center; justify-content:center; gap:0.5rem; padding:0.85rem 2rem; background:linear-gradient(135deg, #0D9488 0%, #14B8A6 100%); color:white; font-weight:800; font-size:1rem; border-radius:8px; text-decoration:none; box-shadow:0 4px 14px rgba(13,148,136,0.35);">
+            🚀 Start Module Test Now →
+          </a>
+        </div>
+      `;
+      App.toast(`🎉 ${questions.length} Questions Generated! Opening Module Assessment Test...`, 'success');
+      setTimeout(() => {
+        window.location.href = 'module-assessment.html';
+      }, 700);
+    } else {
+      App.toast('Generated assessment items successfully.', 'info');
+    }
   } finally {
     btn.disabled = false;
     btn.innerHTML = '⚡ Generate Bloom-Tagged MCQs';

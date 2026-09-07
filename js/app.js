@@ -138,14 +138,45 @@ window.App = (function() {
     const isAdmin = u && (u.role === 'admin' || u.role === 'trainer' || (u.designation && u.designation.includes('Admin')));
 
     const navItems = [
-      { id: 'dashboard', page: 'dashboard.html', label: 'Dashboard', icon: '📊' },
-      { id: 'assessment', page: 'assessment.html', label: 'Competency Assessment', icon: '🎯' },
-      { id: 'courses', page: 'courses.html', label: 'iGOT Courses', icon: '📚' },
-      { id: 'quiz', page: 'quiz-generator.html', label: 'AI Quiz Generator', icon: '🤖' },
+      {
+        id: 'dashboard',
+        page: 'dashboard.html',
+        label: 'Dashboard',
+        icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>`
+      },
+      {
+        id: 'assessment',
+        page: 'assessment.html',
+        label: 'Competency Assessment',
+        icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`
+      },
+      {
+        id: 'courses',
+        page: 'courses.html',
+        label: 'iGOT Courses',
+        icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`
+      },
+      {
+        id: 'quiz',
+        page: 'quiz-generator.html',
+        label: 'AI Quiz Generator',
+        icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2V4a2 2 0 0 1 2-2z"/><circle cx="9" cy="11" r="1"/><circle cx="15" cy="11" r="1"/><path d="M10 15h4"/></svg>`
+      },
+      {
+        id: 'module-assessment',
+        page: 'module-assessment.html',
+        label: 'Module Assessment',
+        icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`
+      },
     ];
 
     if (isAdmin) {
-      navItems.push({ id: 'admin', page: 'admin.html', label: 'Admin Analytics', icon: '📈' });
+      navItems.push({
+        id: 'admin',
+        page: 'admin.html',
+        label: 'Admin Analytics',
+        icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`
+      });
     }
 
     const normActive = (activePage || 'dashboard').toLowerCase().replace('.html', '');
@@ -154,7 +185,9 @@ window.App = (function() {
 
     return `
       <div class="sidebar-logo">
-        <div class="sidebar-logo-icon">🎓</div>
+        <div class="sidebar-logo-icon" style="display:flex;align-items:center;justify-content:center;color:#0D9488;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        </div>
         <div style="flex:1;">
           <div class="sidebar-logo-text">Skill<span style="color:#F97316">Vista</span></div>
           <div class="sidebar-logo-sub">MOSPI · IGOT ECOSYSTEM</div>
@@ -166,10 +199,12 @@ window.App = (function() {
         <div class="sidebar-section-label">PLATFORM NAVIGATION</div>
         ${navItems.map(item => {
           const isActive = (normActive === item.id || normActive === item.page.replace('.html', ''));
+          const isIgot = item.id === 'courses';
+          const greenStyle = isIgot ? 'color:#10B981 !important; font-weight:700;' : '';
           return `
-            <a href="${item.page}" class="nav-item ${isActive ? 'active' : ''}">
-              <span style="font-size:1.15rem; flex-shrink:0;">${item.icon}</span>
-              <span>${item.label}</span>
+            <a href="${item.page}" class="nav-item ${isActive ? 'active' : ''}" style="${greenStyle}">
+              <span style="display:flex;align-items:center;justify-content:center;width:20px;flex-shrink:0;${isIgot ? 'color:#10B981 !important;' : ''}">${item.icon}</span>
+              <span style="${greenStyle}">${item.label}</span>
               ${item.badge ? `<span class="badge badge-green" style="margin-left:auto; font-size:0.6rem; padding:1px 6px; font-weight:700;">${item.badge}</span>` : ''}
             </a>
           `;
@@ -200,6 +235,8 @@ window.App = (function() {
   function updateProfile(updatedFields) {
     let u = getCurrentUser() || requireAuth();
     Object.assign(u, updatedFields);
+    if (updatedFields.department) u.ministry = updatedFields.department;
+    if (updatedFields.ministry) u.department = updatedFields.ministry;
     
     if (updatedFields.name) {
       const parts = updatedFields.name.trim().split(/\s+/);
@@ -304,6 +341,225 @@ window.App = (function() {
     return `${Math.floor(hrs / 24)}d ago`;
   }
 
+  function initUniversalChatbot() {
+    let widget = document.querySelector('.chatbot-widget');
+    if (!widget) {
+      widget = document.createElement('div');
+      widget.className = 'chatbot-widget';
+      document.body.appendChild(widget);
+    }
+    
+    // Inject clean unified SkillVista widget HTML
+    widget.innerHTML = `
+      <div id="chatbot-panel-el" class="chatbot-panel hidden">
+        <div class="chatbot-header">
+          <div class="chatbot-header-info">
+            <div class="chatbot-avatar" style="display:flex;align-items:center;justify-content:center;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2V4a2 2 0 0 1 2-2z"/><circle cx="9" cy="11" r="1"/><circle cx="15" cy="11" r="1"/><path d="M10 15h4"/></svg>
+            </div>
+            <div>
+              <div class="chatbot-name" style="font-weight:800;letter-spacing:0.02em;">SkillVista</div>
+              <div class="chatbot-status" style="font-size:0.72rem;opacity:0.9;">Live Page Analysis &amp; AI Assistant</div>
+            </div>
+          </div>
+          <button id="chatbot-close-btn" class="chatbot-close">×</button>
+        </div>
+
+        <div id="chat-messages-container" class="chatbot-messages"></div>
+
+        <div class="chatbot-input-area">
+          <input type="text" id="chat-input-field" class="chatbot-input" placeholder="Ask SkillVista about this page or courses...">
+          <button id="chat-send-btn" class="chatbot-send">➤</button>
+        </div>
+      </div>
+
+      <button id="chatbot-toggle-btn" class="chatbot-toggle" title="Ask SkillVista" style="display:flex;align-items:center;justify-content:center;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2V4a2 2 0 0 1 2-2z"/><circle cx="9" cy="11" r="1"/><circle cx="15" cy="11" r="1"/><path d="M10 15h4"/></svg>
+      </button>
+    `;
+
+    bindUniversalChatbotEvents();
+  }
+
+  function bindUniversalChatbotEvents() {
+    const toggleBtn = document.getElementById('chatbot-toggle-btn');
+    const closeBtn  = document.getElementById('chatbot-close-btn');
+    const panel     = document.getElementById('chatbot-panel-el');
+    const sendBtn   = document.getElementById('chat-send-btn');
+    const chatInput = document.getElementById('chat-input-field');
+    const msgsContainer = document.getElementById('chat-messages-container');
+
+    if (!panel || !msgsContainer) return;
+
+    function formatChatReply(t) {
+      if (!t) return '';
+      return t
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/`([^`]+)`/g, '<code style="background:#F1F5F9;padding:2px 5px;border-radius:4px;font-size:0.85em;">$1</code>')
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" style="color:#0D9488;font-weight:700;text-decoration:underline;">$1</a>')
+        .replace(/\n/g, '<br>');
+    }
+
+    function getHistory() {
+      try {
+        const raw = localStorage.getItem('sv_chat_history');
+        return raw ? JSON.parse(raw) : [];
+      } catch(e) { return []; }
+    }
+
+    function saveHistoryItem(role, text) {
+      try {
+        const h = getHistory();
+        h.push({ role, text, time: new Date().toISOString() });
+        localStorage.setItem('sv_chat_history', JSON.stringify(h));
+      } catch(e) {}
+    }
+
+    function isPanelOpen() {
+      return localStorage.getItem('sv_chat_open') === 'true';
+    }
+
+    function setPanelOpen(open) {
+      localStorage.setItem('sv_chat_open', open ? 'true' : 'false');
+    }
+
+    // Restore Chat History
+    const history = getHistory();
+    msgsContainer.innerHTML = '';
+    if (history.length > 0) {
+      history.forEach(item => {
+        const div = document.createElement('div');
+        div.className = `chat-msg ${item.role}`;
+        if (item.role === 'bot') {
+          div.innerHTML = formatChatReply(item.text);
+        } else {
+          div.textContent = item.text;
+        }
+        msgsContainer.appendChild(div);
+      });
+    } else {
+      const welcome = "👋 Hello! I am **SkillVista** AI. Ask me anything about what's currently on your screen, your competency gaps, or iGOT Karmayogi courses!";
+      const div = document.createElement('div');
+      div.className = 'chat-msg bot';
+      div.innerHTML = formatChatReply(welcome);
+      msgsContainer.appendChild(div);
+      saveHistoryItem('bot', welcome);
+    }
+    msgsContainer.scrollTop = msgsContainer.scrollHeight;
+
+    // Restore Panel State
+    if (isPanelOpen()) {
+      panel.classList.remove('hidden');
+    } else {
+      panel.classList.add('hidden');
+    }
+
+    if (chatInput) {
+      chatInput.disabled = false;
+      chatInput.readOnly = false;
+    }
+
+    if (toggleBtn) {
+      toggleBtn.onclick = (e) => {
+        if (e) e.stopPropagation();
+        const nowHidden = panel.classList.contains('hidden');
+        if (nowHidden) {
+          panel.classList.remove('hidden');
+          setPanelOpen(true);
+          if (chatInput) setTimeout(() => chatInput.focus(), 50);
+        } else {
+          panel.classList.add('hidden');
+          setPanelOpen(false);
+        }
+      };
+    }
+
+    if (closeBtn) {
+      closeBtn.onclick = (e) => {
+        if (e) e.stopPropagation();
+        panel.classList.add('hidden');
+        setPanelOpen(false);
+      };
+    }
+
+    if (panel) {
+      panel.onclick = (e) => e.stopPropagation();
+    }
+
+    const sendChatMessage = async () => {
+      if (!chatInput || !chatInput.value.trim()) return;
+      const text = chatInput.value.trim();
+      chatInput.value = '';
+
+      const uMsg = document.createElement('div');
+      uMsg.className = 'chat-msg user';
+      uMsg.textContent = text;
+      msgsContainer.appendChild(uMsg);
+      saveHistoryItem('user', text);
+
+      const loadingMsg = document.createElement('div');
+      loadingMsg.className = 'chat-msg bot';
+      loadingMsg.textContent = 'Analyzing page & generating answer...';
+      msgsContainer.appendChild(loadingMsg);
+      msgsContainer.scrollTop = msgsContainer.scrollHeight;
+
+      let replyText = '';
+      try {
+        const u = getCurrentUser() || {};
+        const pageContext = {
+          pageId: 'standalone',
+          pageTitle: document.title || 'SkillVista Page',
+          user: { name: u.name, designation: u.designation, ministry: u.department, email: u.email },
+          overallScore: 78,
+          visibleText: (document.querySelector('.page-body') || document.body).innerText.slice(0, 3000)
+        };
+        if (window.GeminiService && typeof GeminiService.chatAssistant === 'function') {
+          replyText = await GeminiService.chatAssistant(text, pageContext);
+        } else {
+          replyText = `Based on your current page (**${document.title || 'SkillVista'}**):\n\n` +
+                     `Regarding **"${text}"**:\n\n` +
+                     `• **Officer**: ${u.name || 'Officer'}\n` +
+                     `• **Current View**: ${document.title || 'SkillVista Page'}\n\n` +
+                     `👉 [Study Courses on iGOT Karmayogi Portal](https://www.igotkarmayogi.gov.in)`;
+        }
+      } catch(err) {
+        replyText = `Regarding **"${text}"**:\n\n👉 [Study Courses on iGOT Karmayogi Portal](https://www.igotkarmayogi.gov.in)`;
+      }
+
+      loadingMsg.innerHTML = formatChatReply(replyText);
+      saveHistoryItem('bot', replyText);
+      msgsContainer.scrollTop = msgsContainer.scrollHeight;
+    };
+
+    if (sendBtn) sendBtn.onclick = (e) => {
+      if (e) e.stopPropagation();
+      sendChatMessage();
+    };
+
+    if (chatInput) {
+      chatInput.onkeydown = (e) => {
+        e.stopPropagation();
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          sendChatMessage();
+        }
+      };
+    }
+  }
+
+  // Auto initialize on DOM ready
+  if (typeof window !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => setTimeout(initUniversalChatbot, 150));
+    } else {
+      setTimeout(initUniversalChatbot, 150);
+    }
+  }
+
   return {
     login,
     logout,
@@ -317,7 +573,9 @@ window.App = (function() {
     addCertificate,
     removeCertificate,
     formatDate,
-    timeAgo
+    timeAgo,
+    initUniversalChatbot
   };
 
 })();
+

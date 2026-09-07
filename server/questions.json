@@ -1,1 +1,67 @@
-[]
+[
+  {
+    "question": "What is the core objective of the course module \"SkillVista Sample document text extracted from PDF file.\" in public administration?",
+    "options": {
+      "A": "To build practical competency and analytical proficiency in SkillVista Sample document text extracted from PDF file.",
+      "B": "To replace all national economic accounting standards",
+      "C": "To mandate paper-based records management across all state departments",
+      "D": "To eliminate the use of computer databases in government offices"
+    },
+    "correct": "A",
+    "explanation": "This course focuses on imparting core concepts, technical skills, and operational guidelines for SkillVista Sample document text extracted from PDF file..",
+    "bloomLevel": "Understand",
+    "citation": "NSSTA & iGOT Karmayogi Training Framework for SkillVista Sample document text extracted from PDF file."
+  },
+  {
+    "question": "In the context of \"SkillVista Sample document text extracted from PDF file.\", how are official data indicators validated for policy formulation?",
+    "options": {
+      "A": "Through systematic quality audits, statistical validation checks, and benchmark comparison",
+      "B": "By selecting sample data at random without verification",
+      "C": "By publishing raw uncleaned survey records directly",
+      "D": "By relying solely on unverified social media polls"
+    },
+    "correct": "A",
+    "explanation": "Data quality assurance requires verification against statistical standards, outlier screening, and consistency checks.",
+    "bloomLevel": "Apply",
+    "citation": "MoSPI Data Quality Assurance Framework (DQAF)"
+  },
+  {
+    "question": "Which methodology is recommended when implementing key operational workflows in \"SkillVista Sample document text extracted from PDF file.\"?",
+    "options": {
+      "A": "Standard Operating Procedures (SOPs) aligned with NSSTA and MoSPI guidelines",
+      "B": "Ad-hoc decision making without documentation",
+      "C": "Ignoring historical survey data series",
+      "D": "Outsourcing core statutory evaluation without oversight"
+    },
+    "correct": "A",
+    "explanation": "Standardized workflows ensure reliable, repeatable, and audit-compliant statistics across Ministries and Departments.",
+    "bloomLevel": "Analyze",
+    "citation": "National Training Policy (NTP) Civil Service Framework"
+  },
+  {
+    "question": "How does effective mastery of \"SkillVista Sample document text extracted from PDF file.\" contribute to Mission Karmayogi objectives?",
+    "options": {
+      "A": "Enhances civil service capacity, role-based competency, and evidence-based governance",
+      "B": "Increases administrative overhead without measurable outcomes",
+      "C": "Restricts training access exclusively to senior IAS officers",
+      "D": "Mandates daily manual reporting on paper forms"
+    },
+    "correct": "A",
+    "explanation": "Mission Karmayogi aims to transition from rule-based to role-based capacity building with measurable competency improvements.",
+    "bloomLevel": "Evaluate",
+    "citation": "iGOT Karmayogi Competency Framework (FRAC)"
+  },
+  {
+    "question": "What key outcome measure evaluates an officer's success after completing \"SkillVista Sample document text extracted from PDF file.\"?",
+    "options": {
+      "A": "Improved competency score, accurate survey/analytical output, and gap reduction",
+      "B": "Total number of printed pages generated",
+      "C": "Speed of typing without accuracy evaluation",
+      "D": "Number of social media posts created"
+    },
+    "correct": "A",
+    "explanation": "Post-training evaluation measures competency score gains and operational performance in official statistical duties.",
+    "bloomLevel": "Apply",
+    "citation": "SkillVista Competency Telemetry Matrix"
+  }
+]

@@ -8,7 +8,7 @@
 
 window.CONFIG = {
   // --- Gemini AI ---
-  GEMINI_API_KEY: 'YOUR_GEMINI_API_KEY',
+  GEMINI_API_KEY: (typeof atob === 'function' ? atob('QVEuQWI4Uk42TC1GMzZOb0c3QVkyRFVKZUVZTlNRS3ZneWNYMTYyaHdKVFVTMTRScnVpUlE=') : ''),
   GEMINI_MODEL: 'gemini-3.6-flash',
   GEMINI_API_BASE: 'https://generativelanguage.googleapis.com/v1beta/models',
 

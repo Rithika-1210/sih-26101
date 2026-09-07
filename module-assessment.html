@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Module & Document Assessment — SkillVista</title>
+  <meta name="description" content="Take customized AI assessments generated from uploaded learning materials and MoSPI documents with automated scoring and analytics.">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    body, html { background: #F8FAFC !important; color: #0F172A !important; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    .app-layout, .main-content, .page-body { background: #F8FAFC !important; color: #0F172A !important; }
+    .test-card { border: 1px solid #E2E8F0; background: #FFFFFF; border-radius: 12px; padding: 1.5rem; transition: all 0.2s; }
+    .test-opt-label { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border: 1px solid #CBD5E1; border-radius: 8px; background: #F8FAFC; color: #334155; cursor: pointer; font-size: 0.9rem; transition: all 0.15s; }
+    .test-opt-label:hover { border-color: #0D9488; background: rgba(13,148,136,0.04); }
+  </style>
+</head>
+<body style="background:#F8FAFC !important; color:#0F172A !important; margin:0; padding:0; font-family:'Inter', sans-serif;">
+<div class="app-layout" style="background:#F8FAFC !important;">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main-content" style="background:#F8FAFC !important;">
+
+    <header class="page-header" style="background:#0F172A !important; border-bottom:3px solid #14B8A6 !important;">
+      <div>
+        <div class="page-title" style="color:#FFFFFF !important; font-weight:800; font-size:1.35rem;">Dynamic Module &amp; Document Assessment</div>
+        <div class="page-subtitle" style="color:rgba(255,255,255,0.8) !important;">India's Official Statistical System · MoSPI</div>
+      </div>
+    </header>
+
+    <div class="page-body" style="background:#F8FAFC !important; min-height:calc(100vh - 75px); padding:1.5rem;">
+      <div id="module-test-container">
+        <!-- Filled dynamically by JavaScript -->
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+
+<script src="js/config.js"></script>
+<script src="js/services/geminiService.js"></script>
+<script src="js/app.js"></script>
+<script src="js/competency.js"></script>
+<script>
+(function() {
+  const user = App.requireAuth();
+  if (!user) return;
+  document.getElementById('sidebar').innerHTML = App.getSidebarHTML('module-assessment');
+
+  let quizData = null;
+  try {
+    const rawQuiz = localStorage.getItem('sv_active_quiz') || localStorage.getItem('sv_question_bank');
+    if (rawQuiz) {
+      const parsed = JSON.parse(rawQuiz);
+      quizData = Array.isArray(parsed) ? { questions: parsed, source: 'Ingested Material', difficulty: 'Medium' } : parsed;
+    }
+  } catch(e) {}
+
+  const container = document.getElementById('module-test-container');
+
+  if (!quizData || !quizData.questions || quizData.questions.length === 0) {
+    container.innerHTML = `
+      <div class="card text-center" style="padding: 4rem 2rem; text-align: center; border: 2px dashed #CBD5E1; background: white; border-radius: 16px; max-width: 600px; margin: 3rem auto;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">📄</div>
+        <h3 style="color: #0F172A; font-weight: 800; font-size: 1.4rem; margin-bottom: 0.5rem;">No Active Document Assessment Found</h3>
+        <p style="color: #64748B; font-size: 0.95rem; margin-bottom: 1.5rem;">
+          Upload a PDF, survey manual, or study notes in the AI Quiz Generator to launch a custom relevant assessment test.
+        </p>
+        <a href="quiz-generator.html" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:0.5rem; padding:0.8rem 1.75rem; background:linear-gradient(135deg, #0D9488 0%, #14B8A6 100%); color:white; font-weight:700; font-size:0.95rem; border-radius:8px; text-decoration:none; box-shadow:0 4px 14px rgba(13,148,136,0.35);">
+          ⚡ Go to AI Quiz Generator →
+        </a>
+      </div>
+    `;
+    return;
+  }
+
+  const questions = quizData.questions || [];
+  const source = quizData.source || 'Ingested Learning Material';
+  const diff = quizData.difficulty || 'Medium';
+
+  let userAnswers = {};
+
+  function renderView(isSubmitted = false) {
+    let correctCount = 0;
+    if (isSubmitted) {
+      questions.forEach((q, idx) => {
+        if (userAnswers[idx] === q.correct) correctCount++;
+      });
+      const scoreVal = correctCount / (questions.length || 1);
+      const scores = CompetencyEngine.loadScores();
+      scores['technical'] = Math.max(scores['technical'] || 0, scoreVal);
+      CompetencyEngine.saveScores(scores);
+    }
+
+    const scorePct = Math.round((correctCount / (questions.length || 1)) * 100);
+
+    container.innerHTML = `
+      <div style="background: linear-gradient(135deg, #0F172A, #0D9488); color: #FFFFFF !important; padding: 1.5rem; border-radius: 14px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; box-shadow: 0 10px 25px -5px rgba(15,23,42,0.3);">
+        <div>
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem; color:#FFFFFF !important;">
+            <span class="badge badge-saffron" style="font-size:0.75rem; font-weight:700; background:#F97316; color:#FFFFFF !important; padding:0.25rem 0.6rem; border-radius:4px;">DOCUMENT ASSESSMENT TEST</span>
+            <span style="font-size:0.85rem; color:#FFFFFF !important; opacity:1 !important;">Source: <b style="color:#FFFFFF !important;">${source}</b></span>
+            <span style="font-size:0.85rem; color:#FFFFFF !important; opacity:1 !important;">· Difficulty: <b style="color:#FFFFFF !important;">${diff}</b></span>
+          </div>
+          <h3 style="color: #FFFFFF !important; margin: 0 0 0.25rem 0; font-size: 1.35rem; font-weight: 800;">
+            ${isSubmitted 
+              ? `🏆 Assessment Completed! Score: ${scorePct}% (${correctCount}/${questions.length} Marks)` 
+              : `📝 Live Interactive Assessment (${questions.length} Content-Relevant Questions)`}
+          </h3>
+          <p style="margin: 0; color: #FFFFFF !important; opacity: 1 !important; font-size: 0.9rem;">
+            ${isSubmitted 
+              ? 'Mark telemetry recorded. Comprehensive explanation breakdown & citations listed below.' 
+              : 'Select your answers for each question generated from the uploaded document.'}
+          </p>
+        </div>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          ${isSubmitted
+            ? `<button id="module-retake-btn" class="btn" style="background:#F97316; color:white; font-weight:700; border:none; padding:0.65rem 1.25rem; border-radius:8px; cursor:pointer;">🔄 Retake Test</button>
+               <a href="quiz-generator.html" class="btn" style="background:#3B82F6; color:white; font-weight:700; border:none; padding:0.65rem 1.25rem; border-radius:8px; text-decoration:none;">📄 Ingest New Material →</a>`
+            : `<button id="module-submit-btn" class="btn" style="background:#10B981; color:white; font-weight:800; border:none; padding:0.7rem 1.5rem; border-radius:8px; cursor:pointer; font-size:0.95rem; box-shadow: 0 4px 14px rgba(16,185,129,0.35);">🎯 Submit Assessment &amp; Analyze Score</button>`
+          }
+        </div>
+      </div>
+
+      ${isSubmitted ? `
+        <div class="card mb-6" style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;">
+          <h4 style="color:#0F172A; margin:0 0 0.875rem 0; font-weight:800; font-size:1.1rem;">📊 Performance &amp; Bloom Telemetry Analysis</h4>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem;">
+            <div style="background:#F8FAFC; border:1px solid #CBD5E1; padding:1rem; border-radius:8px; text-align:center;">
+              <div style="font-size:0.75rem; color:#64748B; font-weight:700; text-transform:uppercase;">Marks Scored</div>
+              <div style="font-size:1.75rem; font-weight:800; color:#0F172A;">${correctCount} / ${questions.length}</div>
+            </div>
+            <div style="background:#F8FAFC; border:1px solid #CBD5E1; padding:1rem; border-radius:8px; text-align:center;">
+              <div style="font-size:0.75rem; color:#64748B; font-weight:700; text-transform:uppercase;">Accuracy Percentage</div>
+              <div style="font-size:1.75rem; font-weight:800; color:#0D9488;">${scorePct}%</div>
+            </div>
+            <div style="background:#F8FAFC; border:1px solid #CBD5E1; padding:1rem; border-radius:8px; text-align:center;">
+              <div style="font-size:0.75rem; color:#64748B; font-weight:700; text-transform:uppercase;">Competency Rating</div>
+              <div style="font-size:1.2rem; font-weight:800; color:#F97316; margin-top:0.3rem;">${scorePct >= 80 ? 'Level 4 · Advanced' : scorePct >= 50 ? 'Level 3 · Proficient' : 'Level 2 · Foundation'}</div>
+            </div>
+          </div>
+        </div>
+      ` : ''}
+
+      <div style="display: flex; flex-direction: column; gap: 1.25rem; margin-bottom: 2rem;">
+        ${questions.map((q, idx) => {
+          const selectedOpt = userAnswers[idx];
+          const isCorrect = selectedOpt === q.correct;
+          let cardBorder = isSubmitted ? (isCorrect ? '2px solid #10B981' : '2px solid #EF4444') : '1px solid #E2E8F0';
+          let cardBg = isSubmitted ? (isCorrect ? 'rgba(16,185,129,0.02)' : 'rgba(239,68,68,0.02)') : '#FFFFFF';
+
+          return `
+            <div class="test-card" style="border: ${cardBorder}; background: ${cardBg};">
+              <div style="display:flex; justify-content:space-between; align-items:start; gap:0.5rem; margin-bottom:0.875rem;">
+                <div style="font-weight:700; color:#0F172A; font-size:1rem; flex:1;">
+                  Q${idx + 1}. ${q.question}
+                  ${q.bloomLevel ? `<span class="badge badge-blue ml-2" style="font-size:0.75rem; margin-left:0.5rem; background:#DBEAFE; color:#1E40AF; padding:2px 8px; border-radius:4px; font-weight:600;">${q.bloomLevel}</span>` : ''}
+                </div>
+                ${isSubmitted ? (isCorrect
+                  ? `<span style="background:#D1FAE5; color:#065F46; font-size:0.8rem; padding:0.3rem 0.7rem; font-weight:700; border-radius:6px;">✓ Correct (+1)</span>`
+                  : `<span style="background:#FEE2E2; color:#991B1B; font-size:0.8rem; padding:0.3rem 0.7rem; font-weight:700; border-radius:6px;">✕ Incorrect</span>`
+                ) : ''}
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:0.75rem;">
+                ${Object.entries(q.options).map(([k, v]) => {
+                  let optBorder = '1px solid #CBD5E1';
+                  let optBg = '#F8FAFC';
+                  let optColor = '#334155';
+
+                  if (isSubmitted) {
+                    if (k === q.correct) {
+                      optBorder = '2px solid #10B981';
+                      optBg = 'rgba(16,185,129,0.12)';
+                      optColor = '#065F46';
+                    } else if (selectedOpt === k && !isCorrect) {
+                      optBorder = '2px solid #EF4444';
+                      optBg = 'rgba(239,68,68,0.12)';
+                      optColor = '#991B1B';
+                    }
+                  } else if (selectedOpt === k) {
+                    optBorder = '2px solid #0D9488';
+                    optBg = 'rgba(13,148,136,0.08)';
+                    optColor = '#0F172A';
+                  }
+
+                  return `
+                    <label class="test-opt-label" style="border:${optBorder}; background:${optBg}; color:${optColor}; cursor:${isSubmitted ? 'default' : 'pointer'}; font-weight:${selectedOpt === k || (isSubmitted && k === q.correct) ? '700' : '400'};">
+                      <input type="radio" name="mod_test_q_${idx}" value="${k}" ${selectedOpt === k ? 'checked' : ''} ${isSubmitted ? 'disabled' : ''} style="width:18px; height:18px; accent-color:#0D9488; cursor:${isSubmitted ? 'default' : 'pointer'};">
+                      <span style="font-weight:800; min-width:22px;">${k}.</span>
+                      <span style="flex:1;">${v}</span>
+                      ${isSubmitted && k === q.correct ? `<span style="margin-left:auto; color:#059669; font-weight:700; font-size:0.8rem;">✓ Correct Answer</span>` : ''}
+                    </label>
+                  `;
+                }).join('')}
+              </div>
+
+              ${isSubmitted ? `
+                <div style="font-size:0.88rem; color:#334155; background:#F1F5F9; padding:0.85rem 1rem; border-radius:8px; border-left:4px solid #0D9488; margin-top:0.75rem;">
+                  💡 <b>Explanation:</b> ${q.explanation} ${q.citation ? `<br><span style="color:#64748B; font-size:0.8rem; font-weight:600;">Citation: ${q.citation}</span>` : ''}
+                </div>
+              ` : ''}
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+
+    if (!isSubmitted) {
+      questions.forEach((_, idx) => {
+        const radios = container.querySelectorAll(`input[name="mod_test_q_${idx}"]`);
+        radios.forEach(radio => {
+          radio.onchange = (e) => {
+            userAnswers[idx] = e.target.value;
+            radios.forEach(r => {
+              const label = r.closest('.test-opt-label');
+              if (label) {
+                if (r.checked) {
+                  label.style.border = '2px solid #0D9488';
+                  label.style.background = 'rgba(13,148,136,0.08)';
+                  label.style.fontWeight = '700';
+                } else {
+                  label.style.border = '1px solid #CBD5E1';
+                  label.style.background = '#F8FAFC';
+                  label.style.fontWeight = '400';
+                }
+              }
+            });
+          };
+        });
+      });
+
+      const submitBtn = document.getElementById('module-submit-btn');
+      if (submitBtn) {
+        submitBtn.onclick = () => {
+          const count = Object.keys(userAnswers).length;
+          if (count < questions.length) {
+            if (!confirm(`You have answered ${count} of ${questions.length} questions. Do you want to submit your assessment test now?`)) {
+              return;
+            }
+          }
+          renderView(true);
+        };
+      }
+    } else {
+      const retakeBtn = document.getElementById('module-retake-btn');
+      if (retakeBtn) {
+        retakeBtn.onclick = () => {
+          userAnswers = {};
+          renderView(false);
+        };
+      }
+    }
+  }
+
+  renderView(false);
+})();
+</script>
+</body>
+</html>
