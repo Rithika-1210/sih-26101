@@ -8,7 +8,7 @@
 
 window.CONFIG = {
   // --- Gemini AI ---
-  GEMINI_API_KEY: 'AQ.Ab8RN6KE8ZujfGlLZuj1xdmu7epCWmU8Bd3Z9YDfoVes5UzyNw',
+  GEMINI_API_KEY: 'YOUR_GEMINI_API_KEY',
   GEMINI_MODEL: 'gemini-3.6-flash',
   GEMINI_API_BASE: 'https://generativelanguage.googleapis.com/v1beta/models',
 
