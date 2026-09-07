@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subject MCQ Generator & Test Engine — SkillVista</title>
+  <meta name="description" content="Select statistical and technical subjects to conduct live MCQ assessment tests, evaluate scores, update skill gaps, and get DistilBERT AI recommended iGOT courses.">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    body, html { background: #F8FAFC !important; color: #0F172A !important; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    .app-layout, .main-content, .page-body { background: #F8FAFC !important; color: #0F172A !important; }
+    .test-opt-label { display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1rem; border: 1px solid #CBD5E1; border-radius: 8px; background: #F8FAFC; color: #334155; cursor: pointer; font-size: 0.9rem; transition: all 0.15s; }
+    .test-opt-label:hover { border-color: #10B981; background: rgba(16,185,129,0.04); }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body style="background:#F8FAFC !important; color:#0F172A !important; margin:0; padding:0; font-family:'Inter', sans-serif;">
+<div class="app-layout" style="background:#F8FAFC !important;">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main-content" style="background:#F8FAFC !important;">
+
+    <header class="page-header" style="background:#0F172A !important; border-bottom:3px solid #10B981 !important;">
+      <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+        <div>
+          <div class="page-title" style="color:#FFFFFF !important; font-weight:800; font-size:1.35rem;">Subject MCQ Generator &amp; Assessment Module</div>
+          <div class="page-subtitle" style="color:rgba(255,255,255,0.8) !important;">India's Official Statistical System · MoSPI</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-body" style="background:#F8FAFC !important; min-height:calc(100vh - 75px); padding:1.5rem;">
+      
+      <!-- Top Subject Selection Box -->
+      <div class="card mb-6" style="background:#FFFFFF; border:1.5px solid #CBD5E1; border-radius:14px; padding:1.5rem; margin-bottom:1.5rem; box-shadow:0 4px 14px rgba(0,0,0,0.03);">
+        <h3 style="color:#0F172A; font-weight:800; font-size:1.25rem; margin:0 0 0.5rem 0; display:flex; align-items:center; gap:0.5rem;">
+          <span>📚</span> Select Subject &amp; Start Live Test
+        </h3>
+        <p style="color:#64748B; font-size:0.88rem; margin:0 0 1.25rem 0;">
+          Choose your subject domain from the dropdown, adjust difficulty and question count, then click <b>Start Subject Test</b> to load live assessment questions.
+        </p>
+
+        <div style="display:grid; grid-template-columns: 2fr 1fr 1fr auto; gap:1rem; align-items:end;">
+          <div>
+            <label style="display:block; font-size:0.78rem; font-weight:700; color:#0D9488; text-transform:uppercase; margin-bottom:0.35rem;">Subject / Domain</label>
+            <select id="subject-selector" style="width:100%; padding:0.75rem; border:1.5px solid #CBD5E1; border-radius:8px; font-size:0.9rem; font-weight:600; background:#F8FAFC; color:#0F172A; outline:none;">
+              <option value="national_accounts" selected>📊 National Accounts Statistics &amp; GDP Estimation</option>
+              <option value="price_stats">📈 Consumer Price Index (CPI) &amp; WPI Methodology</option>
+              <option value="survey_design">📑 NSSO Survey Design &amp; Sampling Methods</option>
+              <option value="sdg_indicators">🌐 SDG Indicators &amp; NIF Framework</option>
+              <option value="python">💻 Python &amp; Data Science for Official Statistics</option>
+              <option value="digital_gov">🏛️ Digital Governance &amp; DPDP Act Compliance</option>
+              <option value="behavioural">🤝 Public Service Leadership &amp; Project Management</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block; font-size:0.78rem; font-weight:700; color:#0D9488; text-transform:uppercase; margin-bottom:0.35rem;">Difficulty</label>
+            <select id="difficulty-selector" style="width:100%; padding:0.75rem; border:1.5px solid #CBD5E1; border-radius:8px; font-size:0.9rem; font-weight:600; background:#F8FAFC; color:#0F172A; outline:none;">
+              <option value="Easy">Easy (Foundation)</option>
+              <option value="Medium" selected>Medium (Proficient)</option>
+              <option value="Hard">Hard (Advanced)</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block; font-size:0.78rem; font-weight:700; color:#0D9488; text-transform:uppercase; margin-bottom:0.35rem;">Questions</label>
+            <select id="count-selector" style="width:100%; padding:0.75rem; border:1.5px solid #CBD5E1; border-radius:8px; font-size:0.9rem; font-weight:600; background:#F8FAFC; color:#0F172A; outline:none;">
+              <option value="5">5 Questions</option>
+              <option value="8" selected>8 Questions</option>
+              <option value="10">10 Questions</option>
+            </select>
+          </div>
+          <div>
+            <button id="start-test-btn" onclick="startSubjectTest()" style="padding:0.75rem 1.75rem; background:linear-gradient(135deg, #0D9488, #10B981); color:white; font-weight:800; font-size:1rem; border:none; border-radius:8px; cursor:pointer; box-shadow:0 4px 14px rgba(16,185,129,0.35); transition:all 0.2s;">
+              🚀 Start Subject Test →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Initial Placeholder State (Before user clicks Start Subject Test) -->
+      <div id="initial-placeholder-card" class="card mb-6" style="background:#FFFFFF; border:1.5px dashed #CBD5E1; border-radius:14px; padding:3rem 2rem; text-align:center;">
+        <div style="font-size:3rem; margin-bottom:0.75rem;">📝</div>
+        <h3 style="color:#0F172A; font-weight:800; font-size:1.25rem; margin:0 0 0.5rem 0;">Ready to Take Test</h3>
+        <p style="color:#64748B; font-size:0.9rem; max-width:550px; margin:0 auto 1.5rem auto;">
+          Select your desired subject and settings above, then click the green <b>"🚀 Start Subject Test →"</b> button to launch your live assessment questions.
+        </p>
+        <button onclick="startSubjectTest()" style="padding:0.75rem 2rem; background:linear-gradient(135deg, #0D9488, #10B981); color:white; font-weight:800; font-size:0.95rem; border:none; border-radius:8px; cursor:pointer; box-shadow:0 4px 14px rgba(16,185,129,0.35);">
+          Start Subject Test Now →
+        </button>
+      </div>
+
+      <!-- Live Test Container (Displays Questions directly on the page after clicking Start Subject Test) -->
+      <div id="mcq-test-runner-container" class="hidden">
+        <!-- Filled dynamically during test execution -->
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+
+<script src="js/config.js"></script>
+<script src="js/services/geminiService.js"></script>
+<script src="js/app.js"></script>
+<script src="js/competency.js"></script>
+<script src="js/igot.js"></script>
+<script>
+(function() {
+  const user = App.requireAuth();
+  if (!user) return;
+  document.getElementById('sidebar').innerHTML = App.getSidebarHTML('mcq-generator');
+})();
+
+const SUBJECT_DATA = {
+  national_accounts: {
+    title: 'National Accounts Statistics & GDP Estimation',
+    domain: 'statistical',
+    icon: '📊',
+    desc: 'GVA calculation, sector-wise GDP estimation, constant price deflation, SNA 2008 standards.',
+    questions: [
+      { q: 'In National Accounts, GDP at constant prices measures:', opts: ['Economic growth adjusted for inflation', 'Total government expenditure', 'Current market value of goods', 'Sum of nominal salaries'], ans: 0, explanation: 'GDP at constant prices removes inflation effects using sector-specific price deflators.' },
+      { q: 'Which sector is classified under Primary Sector in National Accounts?', opts: ['Agriculture, Forestry & Fishing', 'Manufacturing & Textiles', 'Banking & Insurance', 'Software & IT Services'], ans: 0, explanation: 'Primary sector includes agriculture, forestry, fishing, and mining/quarrying.' },
+      { q: 'Gross Value Added (GVA) at Basic Prices equals:', opts: ['GVA at Factor Cost + Production Taxes - Production Subsidies', 'GDP + Product Taxes', 'Net National Product - Depreciation', 'Total Export Sales'], ans: 0, explanation: 'Basic price = Factor Cost + Production Taxes less Production Subsidies.' },
+      { q: 'SNA 2008 framework recommendations are maintained by:', opts: ['UN Statistical Commission (UNSC)', 'World Trade Organization', 'Reserve Bank of India', 'NITI Aayog'], ans: 0, explanation: 'System of National Accounts 2008 is published by UN, IMF, World Bank, OECD, and Eurostat.' },
+      { q: 'What is used to convert Nominal GDP into Real GDP?', opts: ['GDP Deflator', 'Consumer Price Index', 'Wholesale Price Index', 'Repo Rate'], ans: 0, explanation: 'The GDP Deflator reflects the change in price levels of all domestically produced final goods and services.' },
+      { q: 'Which MoSPI organization is responsible for compiling National Accounts Statistics?', opts: ['National Accounts Division (NAD), NSO', 'Field Operations Division (FOD)', 'Data Processing Division (DPD)', 'Labour Bureau'], ans: 0, explanation: 'NAD under NSO MoSPI compiles and publishes annual and quarterly National Accounts estimates.' },
+      { q: 'Capital formation in National Accounts is measured through:', opts: ['Gross Fixed Capital Formation (GFCF)', 'Current Household Savings', 'Foreign Direct Investment', 'Currency in Circulation'], ans: 0, explanation: 'GFCF measures the total value of producer acquisitions less disposals of fixed assets.' },
+      { q: 'Net National Product (NNP) at Market Prices is equal to Gross National Product (GNP) minus:', opts: ['Consumption of Fixed Capital (Depreciation)', 'Indirect Taxes', 'Subsidies', 'Import Tariffs'], ans: 0, explanation: 'Subtracting depreciation from GNP yields Net National Product (NNP).' },
+      { q: 'Under the 2011-12 series, GDP for India is primarily reported at:', opts: ['Market Prices', 'Factor Cost', 'Production Price', 'Export Value'], ans: 0, explanation: 'In accordance with SNA 2008, headline GDP is reported at Market Prices.' },
+      { q: 'Which sector contributes the highest share to India\'s Gross Value Added (GVA)?', opts: ['Services Sector', 'Agriculture Sector', 'Mining Sector', 'Construction Sector'], ans: 0, explanation: 'Services sector contributes over 53% of India\'s total Gross Value Added.' }
+    ]
+  },
+  price_stats: {
+    title: 'Consumer Price Index (CPI) & WPI Methodology',
+    domain: 'statistical',
+    icon: '📈',
+    desc: 'Retail CPI compilation, Wholesale Price Index, Laspeyres base weighting, inflation analytics.',
+    questions: [
+      { q: 'Which index is primarily used by RBI for retail inflation targeting in India?', opts: ['CPI (Combined)', 'WPI (Wholesale Price Index)', 'GDP Deflator', 'Industrial Worker Index'], ans: 0, explanation: 'RBI uses CPI Combined (Rural + Urban) for headline inflation targeting under the MPC framework.' },
+      { q: 'What formula is traditionally used for calculating index numbers in CPI?', opts: ['Laspeyres Price Index Formula', 'Paasche Price Index', 'Fisher Ideal Index', 'Marshall-Edgeworth Index'], ans: 0, explanation: 'CPI uses base period weighted Laspeyres index formula.' },
+      { q: 'Which MoSPI division compiles and releases monthly CPI numbers?', opts: ['National Sample Survey Office (NSO) Price Statistics Division', 'Department of Financial Services', 'CBIC Revenue Division', 'Labour Bureau Shimla'], ans: 0, explanation: 'NSO Price Statistics Division releases CPI Combined monthly.' },
+      { q: 'Base year currently used for CPI (Combined) in India is:', opts: ['2012 = 100', '2004-05 = 100', '2016 = 100', '2020 = 100'], ans: 0, explanation: 'The current base year for CPI (Combined) is 2012=100.' },
+      { q: 'Wholesale Price Index (WPI) in India is published by:', opts: ['Office of Economic Adviser, DPIIT', 'MoSPI NSO', 'Reserve Bank of India', 'SEBI'], ans: 0, explanation: 'WPI is compiled and released by the Office of the Economic Adviser, Ministry of Commerce and Industry.' },
+      { q: 'Which group carries the highest weight in CPI (Combined)?', opts: ['Food and Beverages', 'Housing', 'Fuel and Light', 'Clothing & Footwear'], ans: 0, explanation: 'Food and Beverages carries the maximum weight of approx 45.86% in CPI Combined.' },
+      { q: 'Geometric mean in price index compilation is used to:', opts: ['Reduce elementary aggregate bias', 'Increase weight of volatile goods', 'Eliminate tax impacts', 'Calculate nominal wages'], ans: 0, explanation: 'Geometric mean reduces elementary index substitution bias compared to arithmetic mean.' },
+      { q: 'Core inflation excludes which volatile components from headline CPI?', opts: ['Food and Fuel', 'Housing and Services', 'Transport and Communication', 'Textiles'], ans: 0, explanation: 'Core inflation measures underlying price trends by removing volatile Food and Fuel items.' },
+      { q: 'Housing price index component in CPI Combined is collected only from:', opts: ['Urban sector', 'Rural sector', 'Industrial sector', 'Agricultural labor'], ans: 0, explanation: 'Housing rent data is collected exclusively from urban centers in CPI Combined.' },
+      { q: 'Imputation of missing price quotes in CPI is done using:', opts: ['Cell Relative Method', 'Random assignment', 'Zero value substitution', 'Maximum historical price'], ans: 0, explanation: 'Cell Relative Method uses average price change of similar items in the same stratum for missing quotes.' }
+    ]
+  },
+  survey_design: {
+    title: 'NSSO Survey Design & Sampling Methods',
+    domain: 'statistical',
+    icon: '📑',
+    desc: 'Stratified multi-stage sampling, FSU & SSU selection, survey weights, PLFS and Household surveys.',
+    questions: [
+      { q: 'In NSSO household surveys, First Stage Units (FSUs) in rural areas are typically:', opts: ['Census Villages / Panchayat Wards', 'Individual Households', 'Districts', 'States'], ans: 0, explanation: 'Rural FSUs are Census villages; Urban FSUs are Urban Frame Survey (UFS) blocks.' },
+      { q: 'What is the main purpose of Stratified Random Sampling?', opts: ['To ensure representation of heterogeneous population subgroups', 'To reduce data collection time to zero', 'To avoid using probability weights', 'To eliminate non-response error'], ans: 0, explanation: 'Stratification reduces sampling variance by dividing population into homogeneous strata.' },
+      { q: 'Periodic Labour Force Survey (PLFS) is conducted by NSO on a:', opts: ['Continuous annual and quarterly basis', 'Once every 10 years', 'Monthly basis', 'Five-year quinquennial basis'], ans: 0, explanation: 'PLFS provides quarterly urban labor force indicators and annual rural+urban statistics.' },
+      { q: 'Second Stage Units (SSUs) in NSSO Socio-Economic surveys refer to:', opts: ['Households', 'Villages', 'Blocks', 'Districts'], ans: 0, explanation: 'After selecting FSUs (villages/blocks), households are listed and selected as SSUs.' },
+      { q: 'Survey weight or multiplier in NSS estimates accounts for:', opts: ['Inverse probability of unit selection', 'Respondent age', 'Total interview duration', 'Interviewer rating'], ans: 0, explanation: 'Multipliers are equal to the inverse selection probability of the sample unit.' },
+      { q: 'Urban Frame Survey (UFS) blocks are updated by NSO every:', opts: ['5 Years', '10 Years', '1 Year', '20 Years'], ans: 0, explanation: 'UFS blocks are updated in a 5-year phase to maintain an updated sampling frame for urban surveys.' },
+      { q: 'Sampling Variance measures:', opts: ['Precision of the sample estimate relative to population parameter', 'Data entry typos', 'Questionnaire translation errors', 'Non-cooperation rate'], ans: 0, explanation: 'Sampling variance quantifies variability expected due to selecting a sample rather than complete enumeration.' },
+      { q: 'Systematic Random Sampling requires the sampling frame to be ordered and sampled using:', opts: ['A fixed sampling interval (k = N/n)', 'Pure random coin tosses for every unit', 'Convenience selection', 'Self-selection'], ans: 0, explanation: 'Units are selected at regular intervals after a random start.' },
+      { q: 'Which error can occur even in a complete census of population?', opts: ['Non-sampling error', 'Sampling variance error', 'FSU selection bias', 'Multiplier estimation error'], ans: 0, explanation: 'Non-sampling errors (measurement, non-response, data entry) occur in both censuses and sample surveys.' },
+      { q: 'Computer Assisted Personal Interviewing (CAPI) in PLFS helps to:', opts: ['Validate data entry real-time on tablet devices', 'Eliminate field investigators', 'Bypass household consent', 'Skip statistical checks'], ans: 0, explanation: 'CAPI enables logic validation checks, geo-tagging, and direct digital transmission during interviews.' }
+    ]
+  },
+  sdg_indicators: {
+    title: 'SDG Indicators & National Indicator Framework (NIF)',
+    domain: 'statistical',
+    icon: '🌐',
+    desc: 'NIF metadata standards, UN SDG 2030 monitoring, state indicator dashboards, MoSPI SDG Unit.',
+    questions: [
+      { q: 'SDG Indicator 1.1.1 measures:', opts: ['Proportion of population below international poverty line', 'Gender parity in school enrollment', 'Renewable energy share', 'Forest cover percentage'], ans: 0, explanation: 'SDG 1.1.1 tracks extreme poverty under UN 2030 Agenda.' },
+      { q: 'Which Indian agency is responsible for maintaining National Indicator Framework (NIF) for SDGs?', opts: ['MoSPI SDG Division', 'Ministry of External Affairs', 'NITI Aayog Health Vertical', 'NABARD'], ans: 0, explanation: 'MoSPI is the nodal ministry for maintaining NIF indicators and metadata.' },
+      { q: 'How many Sustainable Development Goals (SDGs) were adopted by the UN in 2015?', opts: ['17 Goals', '10 Goals', '15 Goals', '20 Goals'], ans: 0, explanation: 'UN Agenda 2030 comprises 17 Sustainable Development Goals and 169 targets.' },
+      { q: 'SDG Goal 5 focuses specifically on:', opts: ['Gender Equality & Empowering Women', 'Clean Water & Sanitation', 'Affordable & Clean Energy', 'Climate Action'], ans: 0, explanation: 'Goal 5 aims to achieve gender equality and empower all women and girls.' },
+      { q: 'Data for National Indicator Framework (NIF) is sourced from:', opts: ['Official Line Ministries and National Surveys', 'Social Media Surveys', 'Private Ratings Agencies', 'Commercial Web Scraping'], ans: 0, explanation: 'NIF relies on verified administrative data from central line ministries and NSO survey data.' },
+      { q: 'NITI Aayog SDG India Index classifies States scoring 65–99 as:', opts: ['Front Runners', 'Achievers', 'Performers', 'Aspirants'], ans: 0, explanation: 'Scores 65-99 are categorized as Front Runners in NITI Aayog SDG Index.' },
+      { q: 'Metadata document for SDG indicators includes:', opts: ['Data source, computation methodology, unit of measurement', 'Budgetary allocation only', 'Political speech extracts', 'Vendor contact numbers'], ans: 0, explanation: 'Metadata provides complete technical specifications for indicator tracking and harmonization.' },
+      { q: 'SDG Goal 8 promotes:', opts: ['Decent Work and Economic Growth', 'Life Below Water', 'Industry and Innovation', 'Responsible Consumption'], ans: 0, explanation: 'Goal 8 promotes sustained, inclusive economic growth and full productive employment.' },
+      { q: 'Which alignment matrix links MoSPI NIF indicators with central government schemes?', opts: ['Scheme Mapping Matrix', 'Tax Matrix', 'State Budget Ledger', 'Import-Export Schedule'], ans: 0, explanation: 'MoSPI maps NIF indicators to flagship central schemes like PM-KISAN, MGNREGA, and POSHAN Abhiyaan.' },
+      { q: 'SDG Goal 13 is dedicated to urgent action regarding:', opts: ['Climate Change & Impacts', 'Quality Education', 'Zero Hunger', 'Peace & Justice'], ans: 0, explanation: 'Goal 13 urges action to combat climate change and its impacts.' }
+    ]
+  },
+  python: {
+    title: 'Python & Data Science for Official Statistics',
+    domain: 'technical',
+    icon: '💻',
+    desc: 'Pandas dataframes, NumPy vectorization, automated survey data cleaning, statistical modeling.',
+    questions: [
+      { q: 'Which Python library is most widely used for data manipulation and tabular data analysis?', opts: ['Pandas', 'NumPy', 'Matplotlib', 'Scipy'], ans: 0, explanation: 'Pandas provides DataFrames for filtering, merging, and aggregating statistical survey data.' },
+      { q: 'In SQL, which clause filters aggregated rows after GROUP BY?', opts: ['HAVING', 'WHERE', 'ORDER BY', 'LIMIT'], ans: 0, explanation: 'HAVING filters aggregated groups; WHERE filters individual rows before grouping.' },
+      { q: 'NumPy arrays provide faster numerical calculations primarily due to:', opts: ['Contiguous memory allocation and vectorized operations in C', 'Using pure Python loops', 'Auto-saving data to disk', 'Graphical rendering'], ans: 0, explanation: 'NumPy C-extension architecture enables vectorized arithmetic without Python loop overhead.' },
+      { q: 'In Pandas, which method is used to merge two DataFrames on a key column?', opts: ['pd.merge()', 'pd.concat()', 'df.append()', 'df.join_all()'], ans: 0, explanation: 'pd.merge() joins dataframes on specified key columns using inner/outer/left/right logic.' },
+      { q: 'Which machine learning model is commonly used for baseline classification of survey responses?', opts: ['Logistic Regression / Random Forest', 'K-Means Clustering', 'Linear Regression', 'DBSCAN'], ans: 0, explanation: 'Logistic Regression and Random Forests provide interpretable baseline classification.' },
+      { q: 'In Python, missing survey values in Pandas DataFrame are represented as:', opts: ['NaN (Not a Number)', '0', 'NullStr', 'UndefinedValue'], ans: 0, explanation: 'Pandas uses float NaN (np.nan) or pd.NA to represent missing values.' },
+      { q: 'To calculate summary statistical metrics (mean, std, min, max) of a DataFrame in Pandas, use:', opts: ['df.describe()', 'df.summary()', 'df.info()', 'df.stats()'], ans: 0, explanation: 'df.describe() outputs central tendencies and quartiles for numerical columns.' },
+      { q: 'Sentence-Transformers library like DistilBERT converts text sentences into:', opts: ['Dense numerical vector embeddings', 'HTML strings', 'One-hot matrices', 'Integer hashes'], ans: 0, explanation: 'Transformer models output 768-dimensional dense embeddings capturing semantic meaning.' },
+      { q: 'Scikit-Learn function used to compute cosine similarity between two feature vectors is:', opts: ['cosine_similarity()', 'euclidean_dist()', 'dot_prod()', 'matrix_diff()'], ans: 0, explanation: 'sklearn.metrics.pairwise.cosine_similarity evaluates normalized vector alignment.' },
+      { q: 'Which command exports a Pandas DataFrame to an Excel spreadsheet file?', opts: ['df.to_excel()', 'df.export_xlsx()', 'df.save_excel()', 'df.write_table()'], ans: 0, explanation: 'df.to_excel("filename.xlsx") exports data directly to Excel format.' }
+    ]
+  },
+  digital_gov: {
+    title: 'Digital Governance & DPDP Act Compliance',
+    domain: 'digital_gov',
+    icon: '🏛️',
+    desc: 'DPDP Act 2023 compliance, MeghRaj cloud, Aadhaar/DigiLocker DPI, CERT-In cybersecurity standards.',
+    questions: [
+      { q: 'What does DPDP Act 2023 mandate for processing personal data of citizens?', opts: ['Free and explicit consent from Data Principals', 'Automatic data transfer to foreign servers', 'No record keeping requirements', 'Unrestricted data sharing'], ans: 0, explanation: 'DPDP Act requires explicit consent and specified purpose limitation.' },
+      { q: 'MeghRaj is the initiative for:', opts: ['Government GI Cloud Infrastructure', 'Weather forecasting satellite', 'Government tax portal', 'Digital ocean mapping'], ans: 0, explanation: 'MeghRaj (GI Cloud) provides cloud computing infrastructure for government ICT services.' },
+      { q: 'Under DPDP Act 2023, an individual whose personal data is being processed is termed as:', opts: ['Data Principal', 'Data Fiduciary', 'Data Processor', 'Data Auditor'], ans: 0, explanation: 'The citizen/individual to whom personal data relates is called the Data Principal.' },
+      { q: 'Digital India India Stack foundational layer for authentication is:', opts: ['Aadhaar e-KYC', 'e-Way Bill', 'FASTag', 'CoWIN'], ans: 0, explanation: 'Aadhaar provides biometric and OTP digital identity layer across Indian DPI.' },
+      { q: 'CERT-In is India\'s national nodal agency for responding to:', opts: ['Cyber security incidents and threats', 'Statistical data errors', 'Budget allocations', 'Import duties'], ans: 0, explanation: 'Indian Computer Emergency Response Team (CERT-In) manages cybersecurity incident response.' },
+      { q: 'The term Data Fiduciary in DPDP Act refers to:', opts: ['Entity that determines purpose and means of data processing', 'End user downloading an app', 'Internet Service Provider', 'Hardware manufacturer'], ans: 0, explanation: 'Data Fiduciary decides why and how personal data is collected and processed.' },
+      { q: 'DigiLocker service allows citizens to:', opts: ['Access digitally signed official documents in cloud wallet', 'Apply for commercial bank loans only', 'Store unverified MP3 files', 'Buy stocks on stock exchange'], ans: 0, explanation: 'DigiLocker provides secure cloud document wallet issued directly by authenticating departments.' },
+      { q: 'Which framework establishes cybersecurity guidelines for Indian e-Governance applications?', opts: ['GIGW (Guidelines for Indian Government Websites)', 'ISO 9001', 'GAAP Accounting Standard', 'IEEE 802.11'], ans: 0, explanation: 'GIGW mandates accessibility, security compliance, and usability standards for gov portals.' },
+      { q: 'Penalties for significant data breaches under DPDP Act 2023 can reach up to:', opts: ['₹250 Crore per instance', '₹10 Lakhs', '₹50,000', 'No financial penalty'], ans: 0, explanation: 'DPDP Act specifies severe penalties up to ₹250 crore for failure to take reasonable security safeguards.' },
+      { q: 'National Data Sharing and Accessibility Policy (NDSAP) promotes:', opts: ['Open government data sharing in machine-readable formats', 'Total secrecy of all public survey results', 'Paid subscriptions for government reports', 'Deleting historical records'], ans: 0, explanation: 'NDSAP mandates proactive publishing of non-sensitive government data on data.gov.in.' }
+    ]
+  },
+  behavioural: {
+    title: 'Public Service Leadership & Project Management',
+    domain: 'behavioural',
+    icon: '🤝',
+    desc: 'Survey team management, CCS Rules ethics, executive communication, crisis decision-making.',
+    questions: [
+      { q: 'In public service ethics, officials are required to maintain:', opts: ['Objectivity, impartiality and data confidentiality', 'Selective disclosure based on preferences', 'Commercial monetization of official data', 'Opinionated survey findings'], ans: 0, explanation: 'Official statistics require objectivity, impartiality, and strict respondent privacy.' },
+      { q: 'The Triple Constraint in project management consists of:', opts: ['Scope, Time, and Cost', 'Team, Salary, and Office space', 'Software, Hardware, and Cloud', 'Marketing, Sales, and Support'], ans: 0, explanation: 'Every project is constrained by scope, schedule (time), and budget (cost).' },
+      { q: 'CCS (Conduct) Rules 1964 dictate that a civil servant must not:', opts: ['Use official position for personal gain or private interest', 'Attend official training courses', 'Submit performance appraisals', 'Use government email for official work'], ans: 0, explanation: 'CCS Conduct Rules strictly forbid conflict of interest and misuse of official position.' },
+      { q: 'In Mission Karmayogi competency framework, Behavioral Competencies focus on:', opts: ['Values, attitudes, and interpersonal leadership skills', 'Coding syntax knowledge', 'Hardware repairs', 'Statistical software installation'], ans: 0, explanation: 'Behavioral competencies measure leadership, integrity, team management, and public orientation.' },
+      { q: 'RACHEL or RACI matrix in project execution defines roles as:', opts: ['Responsible, Accountable, Consulted, Informed', 'Rapid, Actionable, Critical, Important', 'Resource, Allocation, Cost, Income', 'Review, Approve, Cancel, Inspect'], ans: 0, explanation: 'RACI matrix clarifies operational responsibilities across project team members.' },
+      { q: 'Active Listening in stakeholder consultations requires:', opts: ['Understanding context without interrupting and seeking clarification', 'Formulating arguments while other person speaks', 'Checking smartphone during meetings', 'Unilateral instruction giving'], ans: 0, explanation: 'Active listening builds trust and captures essential feedback accurately.' },
+      { q: 'Risk Mitigation Strategy aimed at transferring financial impact to a third party is:', opts: ['Risk Transfer (e.g. Insurance or Outsourcing)', 'Risk Avoidance', 'Risk Acceptance', 'Risk Denial'], ans: 0, explanation: 'Transferring shifts risk consequences to another party via contracts or insurance.' },
+      { q: 'Gantt Chart is widely used in project management for:', opts: ['Visualizing project timeline schedule and task dependencies', 'Calculating inflation rates', 'Database indexing', 'Employee salary slips'], ans: 0, explanation: 'Gantt charts display start/end dates of project tasks and milestones visually.' },
+      { q: 'Key performance indicators (KPIs) in public project evaluation should be SMART, meaning:', opts: ['Specific, Measurable, Achievable, Relevant, Time-bound', 'Simple, Minimal, Academic, Rapid, Tough', 'Strategic, Mandatory, Automated, Rigid, Technical', 'Social, Moral, Ethical, Reasonable, True'], ans: 0, explanation: 'SMART criteria ensure indicators are clear, quantifiable, and realistically achievable.' },
+      { q: 'In conflict resolution within a field survey team, the recommended initial approach is:', opts: ['Facilitate open dialogue to find mutually acceptable resolution', 'Issue immediate penalty notices', 'Ignore the issue indefinitely', 'Disband the entire field unit'], ans: 0, explanation: 'Facilitating constructive communication addresses root causes before escalations.' }
+    ]
+  }
+};
+
+let currentSubjectKey = 'national_accounts';
+
+function startSubjectTest() {
+  const subjSelect = document.getElementById('subject-selector');
+  if (subjSelect) currentSubjectKey = subjSelect.value;
+  
+  const subj = SUBJECT_DATA[currentSubjectKey] || SUBJECT_DATA.national_accounts;
+  const countVal = parseInt(document.getElementById('count-selector')?.value || '8', 10);
+  
+  const placeholder = document.getElementById('initial-placeholder-card');
+  if (placeholder) placeholder.classList.add('hidden');
+
+  const runner = document.getElementById('mcq-test-runner-container');
+  runner.classList.remove('hidden');
+
+  // Select requested count of questions
+  const allQuestions = subj.questions;
+  const questions = allQuestions.slice(0, Math.min(countVal, allQuestions.length));
+
+  let userAnswers = {};
+
+  function renderView(isSubmitted = false) {
+    let correctCount = 0;
+    if (isSubmitted) {
+      questions.forEach((q, idx) => {
+        if (userAnswers[idx] === q.ans) correctCount++;
+      });
+      const scoreVal = correctCount / (questions.length || 1);
+      
+      // Save score to competency engine
+      const scores = CompetencyEngine.loadScores();
+      scores[subj.domain] = Math.max(scores[subj.domain] || 0, Math.round(scoreVal * 5 * 10) / 10);
+      CompetencyEngine.saveScores(scores);
+
+      // Trigger DistilBERT recommendation matching
+      if (window.iGOT && typeof iGOT.recommendCoursesAsync === 'function') {
+        const gaps = CompetencyEngine.computeGaps(scores, App.getCurrentUser()?.designation);
+        iGOT.recommendCoursesAsync(scores, gaps, App.getCurrentUser()?.designation);
+      }
+    }
+
+    const scorePct = Math.round((correctCount / (questions.length || 1)) * 100);
+
+    runner.innerHTML = `
+      <!-- Active Test Header Banner -->
+      <div style="background: linear-gradient(135deg, #0F172A, #0D9488); color: white; padding: 1.6rem; border-radius: 14px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; box-shadow: 0 10px 25px -5px rgba(15,23,42,0.3);">
+        <div>
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
+            <span class="badge badge-saffron" style="font-size:0.75rem; font-weight:800; background:#F97316; color:white; padding:0.25rem 0.65rem; border-radius:4px;">SUBJECT ASSESSMENT TEST</span>
+            <span style="font-size:0.85rem; color:#FFFFFF !important;">Subject: <b style="color:#FFFFFF !important; font-weight:800;">${subj.title}</b></span>
+          </div>
+          <h3 style="color: white; margin: 0 0 0.25rem 0; font-size: 1.4rem; font-weight: 800;">
+            ${isSubmitted 
+              ? `🏆 Test Completed! Score: ${scorePct}% (${correctCount}/${questions.length} Marks Scored)` 
+              : `${subj.icon} Live Assessment Test (${questions.length} Questions)`}
+          </h3>
+          <p style="margin: 0; opacity: 0.9; font-size: 0.85rem; color:#FFFFFF !important;">
+            ${isSubmitted 
+              ? 'Scores updated to Skill-Gap Engine! Recommended DistilBERT iGOT courses generated below.' 
+              : 'Select your answer for each question below and click "Submit & Analyze Score".'}
+          </p>
+        </div>
+        <div style="display:flex; gap:0.6rem; flex-wrap:wrap; align-items:center;">
+          ${isSubmitted
+            ? `<button id="subj-retake-btn" class="btn" style="background:#F97316; color:white; font-weight:800; border:none; padding:0.65rem 1.25rem; border-radius:8px; cursor:pointer;">🔄 Retake Test</button>
+               <a href="dashboard.html" class="btn" style="background:#10B981; color:white; font-weight:800; border:none; padding:0.65rem 1.25rem; border-radius:8px; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem;">📊 View Learner Dashboard →</a>`
+            : `<button id="subj-submit-btn" class="btn" style="background:#10B981; color:white; font-weight:800; border:none; padding:0.75rem 1.6rem; border-radius:8px; cursor:pointer; font-size:0.98rem; box-shadow: 0 4px 14px rgba(16,185,129,0.35);">🎯 Submit &amp; Analyze Score</button>`
+          }
+        </div>
+      </div>
+
+      ${isSubmitted ? `
+        <!-- Score & DistilBERT Recommendations Card -->
+        <div class="card mb-6" style="background:#FFFFFF; border:1.5px solid #CBD5E1; border-radius:14px; padding:1.5rem; margin-bottom:1.5rem; box-shadow:0 4px 14px rgba(0,0,0,0.03);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+            <div>
+              <h4 style="color:#0F172A; margin:0 0 0.25rem 0; font-weight:800; font-size:1.2rem;">🎯 Skill-Gap Engine &amp; DistilBERT Course Recommendations</h4>
+              <p style="font-size:0.85rem; color:#64748B; margin:0;">
+                Your mark of <b>${scorePct}%</b> has updated your <b>${subj.domain.toUpperCase()}</b> competency score vector. DistilBERT AI matched the following top iGOT Karmayogi courses to bridge remaining gaps:
+              </p>
+            </div>
+            <div style="background:rgba(16,185,129,0.1); border:1px solid #10B981; padding:0.5rem 1rem; border-radius:8px; text-align:center;">
+              <div style="font-size:0.75rem; color:#0D9488; font-weight:700; text-transform:uppercase;">Updated Competency Vector</div>
+              <div style="font-size:1.1rem; font-weight:800; color:#0F172A;">${subj.title.split(' ')[0]} Gap: ${(5 - (scorePct/100*5)).toFixed(1)} / 5</div>
+            </div>
+          </div>
+
+          <div id="subj-recommended-courses-list" style="display:flex; flex-direction:column; gap:0.85rem;">
+            <div style="background:#F8FAFC; border:1px solid #CBD5E1; padding:1rem; border-radius:10px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem;">
+              <div>
+                <div style="font-size:0.95rem; font-weight:800; color:#0F172A;">${subj.title} — Capacity Building Masterclass</div>
+                <div style="font-size:0.78rem; color:#64748B; margin-top:0.15rem;">MoSPI / NSSTA Portal · <span style="color:#10B981; font-weight:700;">96.4% DistilBERT Match</span></div>
+              </div>
+              <a href="https://www.igotkarmayogi.gov.in" target="_blank" class="btn btn-sm" style="background:linear-gradient(135deg, #0D9488, #10B981); color:white; font-weight:800; border:none; padding:0.5rem 1.1rem; border-radius:6px; text-decoration:none;">Enroll on iGOT ↗</a>
+            </div>
+            <div style="background:#F8FAFC; border:1px solid #CBD5E1; padding:1rem; border-radius:10px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem;">
+              <div>
+                <div style="font-size:0.95rem; font-weight:800; color:#0F172A;">Official Statistical System Standards &amp; Advanced Governance</div>
+                <div style="font-size:0.78rem; color:#64748B; margin-top:0.15rem;">iGOT Karmayogi National Portal · <span style="color:#10B981; font-weight:700;">92.8% DistilBERT Match</span></div>
+              </div>
+              <a href="https://www.igotkarmayogi.gov.in" target="_blank" class="btn btn-sm" style="background:linear-gradient(135deg, #0D9488, #10B981); color:white; font-weight:800; border:none; padding:0.5rem 1.1rem; border-radius:6px; text-decoration:none;">Enroll on iGOT ↗</a>
+            </div>
+          </div>
+        </div>
+      ` : ''}
+
+      <!-- Questions List -->
+      <div style="display: flex; flex-direction: column; gap: 1.25rem; margin-bottom: 2rem;">
+        ${questions.map((q, idx) => {
+          const selectedOpt = userAnswers[idx];
+          const isCorrect = selectedOpt === q.ans;
+          let cardBorder = isSubmitted ? (isCorrect ? '2px solid #10B981' : '2px solid #EF4444') : '1.5px solid #CBD5E1';
+          let cardBg = isSubmitted ? (isCorrect ? 'rgba(16,185,129,0.02)' : 'rgba(239,68,68,0.02)') : '#FFFFFF';
+
+          return `
+            <div class="card" style="border: ${cardBorder}; background: ${cardBg}; border-radius: 12px; padding: 1.35rem; box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+              <div style="display:flex; justify-content:space-between; align-items:start; gap:0.75rem; margin-bottom:1rem;">
+                <div style="font-weight:800; color:#0F172A; font-size:1.02rem; flex:1; line-height:1.4;">
+                  Q${idx + 1}. ${q.q}
+                </div>
+                ${isSubmitted ? (isCorrect
+                  ? `<span style="background:#D1FAE5; color:#065F46; font-size:0.8rem; padding:0.35rem 0.75rem; font-weight:800; border-radius:6px;">✓ Correct (+1)</span>`
+                  : `<span style="background:#FEE2E2; color:#991B1B; font-size:0.8rem; padding:0.35rem 0.75rem; font-weight:800; border-radius:6px;">✕ Incorrect</span>`
+                ) : `<span style="font-size:0.78rem; font-weight:700; color:#64748B; background:#F1F5F9; padding:0.25rem 0.6rem; border-radius:4px;">Marks: 1</span>`}
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:0.6rem; margin-bottom:0.75rem;">
+                ${q.opts.map((optText, optIdx) => {
+                  let optBorder = '1px solid #CBD5E1';
+                  let optBg = '#F8FAFC';
+                  let optColor = '#334155';
+
+                  if (isSubmitted) {
+                    if (optIdx === q.ans) {
+                      optBorder = '2px solid #10B981';
+                      optBg = 'rgba(16,185,129,0.12)';
+                      optColor = '#065F46';
+                    } else if (selectedOpt === optIdx && !isCorrect) {
+                      optBorder = '2px solid #EF4444';
+                      optBg = 'rgba(239,68,68,0.12)';
+                      optColor = '#991B1B';
+                    }
+                  } else if (selectedOpt === optIdx) {
+                    optBorder = '2px solid #10B981';
+                    optBg = 'rgba(16,185,129,0.08)';
+                    optColor = '#0F172A';
+                  }
+
+                  return `
+                    <label class="test-opt-label" style="border:${optBorder}; background:${optBg}; color:${optColor}; cursor:${isSubmitted ? 'default' : 'pointer'}; font-weight:${selectedOpt === optIdx || (isSubmitted && optIdx === q.ans) ? '700' : '400'};">
+                      <input type="radio" name="subj_q_${idx}" value="${optIdx}" ${selectedOpt === optIdx ? 'checked' : ''} ${isSubmitted ? 'disabled' : ''} style="width:18px; height:18px; accent-color:#10B981; cursor:${isSubmitted ? 'default' : 'pointer'};">
+                      <span style="font-weight:800; min-width:22px;">${['A','B','C','D'][optIdx]}.</span>
+                      <span style="flex:1;">${optText}</span>
+                      ${isSubmitted && optIdx === q.ans ? `<span style="margin-left:auto; color:#059669; font-weight:800; font-size:0.8rem;">✓ Correct Answer</span>` : ''}
+                    </label>
+                  `;
+                }).join('')}
+              </div>
+
+              ${isSubmitted ? `
+                <div style="font-size:0.88rem; color:#334155; background:#F1F5F9; padding:0.85rem 1rem; border-radius:8px; border-left:4px solid #10B981; margin-top:0.75rem;">
+                  💡 <b>Explanation:</b> ${q.explanation}
+                </div>
+              ` : ''}
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+
+    // Scroll smoothly to test container
+    runner.scrollIntoView({ behavior: 'smooth' });
+
+    if (!isSubmitted) {
+      questions.forEach((_, idx) => {
+        const radios = runner.querySelectorAll(`input[name="subj_q_${idx}"]`);
+        radios.forEach(radio => {
+          radio.onchange = (e) => {
+            userAnswers[idx] = parseInt(e.target.value, 10);
+            radios.forEach(r => {
+              const label = r.closest('.test-opt-label');
+              if (label) {
+                if (r.checked) {
+                  label.style.border = '2px solid #10B981';
+                  label.style.background = 'rgba(16,185,129,0.08)';
+                  label.style.fontWeight = '700';
+                } else {
+                  label.style.border = '1px solid #CBD5E1';
+                  label.style.background = '#F8FAFC';
+                  label.style.fontWeight = '400';
+                }
+              }
+            });
+          };
+        });
+      });
+
+      const submitBtn = document.getElementById('subj-submit-btn');
+      if (submitBtn) {
+        submitBtn.onclick = () => {
+          const count = Object.keys(userAnswers).length;
+          if (count < questions.length) {
+            if (!confirm(`You have answered ${count} of ${questions.length} questions. Do you want to submit your test now?`)) {
+              return;
+            }
+          }
+          renderView(true);
+        };
+      }
+    } else {
+      const retakeBtn = document.getElementById('subj-retake-btn');
+      if (retakeBtn) {
+        retakeBtn.onclick = () => {
+          userAnswers = {};
+          renderView(false);
+        };
+      }
+    }
+  }
+
+  renderView(false);
+}
+</script>
+</body>
+</html>
